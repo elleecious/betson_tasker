@@ -27,7 +27,7 @@ $(document).ready(function() {
 		$("#displayUsername").text(sessionUsername);
 	}
 
-	function startTimer(duration) {
+	function startTimer(duration, isLunchBreak = false) {
 		clearInterval(timerInterval);
 		timerInterval = setInterval(function() {
 			if (timeLeft <= 0) {
@@ -35,7 +35,7 @@ $(document).ready(function() {
 				localStorage.removeItem('startTime');
 				localStorage.removeItem('timeLeft');
 				localStorage.removeItem('isOnBreak');
-				$('#status').text('Status: Your break is over, please back to work');
+				$('#status').text(isLunchBreak ? 'Lunch Break is over,':'Your short break is over'+', please back to work');
 				$('#timer').text('00:00');
 				$('#breakButton').prop('disabled', false);
 				return;
@@ -48,9 +48,9 @@ $(document).ready(function() {
 
 	function resetBreakCountIfNeeded() {
 		var now = new Date();
-		var currentTime = now.getHours() * 60 + now.getMinutes(); // Convert to minutes
+		var currentTime = now.getHours() * 60 + now.getMinutes();
 
-		// Reset break count if it's after 12 PM but before 8 PM
+		// Reset break count if it's after 12 PM
 		if (currentTime >= 12 * 60 && breakCount > 0 ) {
 			breakCount = 0;
 			localStorage.setItem('breakCount', breakCount);
@@ -60,15 +60,15 @@ $(document).ready(function() {
 
 	function handleLunchBreak() {
 		var now = new Date();
-		var currentTime = now.getHours() * 60 + now.getMinutes(); // Convert to minutes
+		var currentTime = now.getHours() * 60 + now.getMinutes();
 		var lunchStart = 1 * 60; // 1 AM in minutes
 		var lunchEnd = 2 * 60; // 2 AM in minutes
 
 		if (currentTime >= lunchStart && currentTime < lunchEnd) {
 			$('#breakButton').prop('disabled', true);
-			$('#status').text('Status: On Lunch Break');
-			timeLeft = lunchEnd - currentTime; // Remaining time in the lunch break
-			startTimer(timeLeft * 60); // Convert minutes to seconds for the timer
+			$('#status').text('On Lunch Break');
+			timeLeft = lunchEnd - currentTime;
+			startTimer(timeLeft * 60, true); 
 			localStorage.setItem('isOnBreak', true);
 		}
 	}
@@ -79,7 +79,7 @@ $(document).ready(function() {
 		timeLeft -= elapsedTime;
 		if (timeLeft > 0) {
 			$('#breakButton').prop('disabled', true);
-			$('#status').text('Status: On Break');
+			$('#status').text('On Short Break');
 			startTimer(timeLeft);
 		} else {
 			localStorage.removeItem('startTime');
