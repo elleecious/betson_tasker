@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>BetsonTasker</title>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/mdb.min.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="css/sweetalert2.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+        <style>
+            .poppins-light {
+                font-family: "Poppins", sans-serif;
+                font-weight: 300;
+                font-style: normal;
+            }
+        </style>
+    </head>
+<body class="poppins-light">
+  <div class="container py-5 mt-5">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="row">
+            <div class="col-md-12 mx-auto">
+              <h1 class="text-center">BetsonTasker</h1>
+              <h6 class="text-center">Bet on Your Productivity, Win Every Task!</h6>
+              <div class="card rounded-0">
+                  <div class="card-header" style="background-color: #002E5D;">
+                    <h3 class="text-center white-text mb-0">Login</h3>
+                  </div>
+                <div class="card-body">
+                  <form class="form" method="post" role="form" autocomplete="off" id="formLogin">
+                    <div class="md-form">
+                      <i class="fa fa-user prefix"></i>
+                      <input class="form-control form-control-lg rounded-0" type="text" name="username" id="username" required>
+                      <label class="text-dark" id="username">Username</label>
+                    </div>
+                    <div class="md-form">
+                      <i class="fa fa-lock prefix"></i>
+                      <input class="form-control form-control-lg rounded-0" type="password" name="password" id="password" required>
+                      <label class="text-dark" for="password">Password</label>
+                    </div>
+                    <button class="btn btn-success btn-lg float-right" type="submit" name="login" id="btnLogin"><i class="fa fa-sign-in"></i> Login
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/mdb.min.js"></script>
+<script src="js/sweetalert2.all.min.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>
