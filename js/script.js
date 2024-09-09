@@ -170,7 +170,13 @@ $(document).ready(function() {
 				icon: "error"
 			});
 		}
-	})
+	});
+
+	$("#nightMode").click(function(){
+		$("body").toggleClass('bg-dark text-white');
+		$(".jumbotron").toggleClass('bg-dark text-white');
+		$("div.container").toggleClass('bg-dark text-light');
+	});
 
 	$("#btnLogout").click(function(){
 		sessionStorage.removeItem("username");
