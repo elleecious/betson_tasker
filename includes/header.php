@@ -1,15 +1,18 @@
+<!-- include connect for database communication -->
+<?php include("connect.php");?>
 <!-- include url for url identification-->
 <?php include("url.php");?>
+
 <!-- top element/ do not touch -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BetsonTasker</title>
     <link rel="stylesheet" type="text/css" href="<?php echo $short_url;?>css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $short_url;?>css/mdb.min.css">
-    <link rel="stylesheet" href="<?php echo $short_url;?>css/addons/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $short_url;?>css/addons/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $short_url;?>css/sweetalert2.min.css">
     <link rel="shortcut icon" href="<?php echo $short_url;?>img/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

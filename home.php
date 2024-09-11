@@ -1,4 +1,6 @@
 <?php include('includes/header.php'); ?>
+<?php include('includes/session.php') ?>
+<?php $page_title="Betson Tasker"; ?>
     <nav class="mb-1 navbar navbar-expand-lg navbar-dark" style="background-color: #002E5D;">
         <a class="navbar-brand" href="#">
            BetsonTasker
@@ -17,7 +19,8 @@
         </div>
     </nav>
     <div class="container mt-5">
-        <h2>Welcome, <span id="displayUsername"></span></h2>
+        <h2>Welcome, <span><?php echo $name; ?></span></h2>
+        <h6><?php echo $position; ?></h6>
         <div class="jumbotron">
             <h4 class="display-4 d-flex justify-content-center" id="status"></h4>
             <h4 class="d-flex justify-content-center font-weight-bold" id="timer"></h4>
@@ -80,11 +83,4 @@
       </div>
     </div>
   </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/mdb.min.js"></script>
-    <script src="js/addons/datatables.min.js"></script>
-    <script src="js/script.js"></script>
-</body>
-</html>
+<?php include('includes/footer.php'); ?>

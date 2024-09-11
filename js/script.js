@@ -22,10 +22,10 @@ $(document).ready(function() {
         $('#timer').text(minutes + ':' + remainingSeconds);
     }
 
-    var sessionUsername = sessionStorage.getItem("username");
-    if (sessionUsername) {
-        $("#displayUsername").text(sessionUsername);
-    }
+    // var sessionUsername = sessionStorage.getItem("username");
+    // if (sessionUsername) {
+    //     $("#displayUsername").text(sessionUsername);
+    // }
 
     function startTimer(duration, isLunchBreak = false) {
         clearInterval(timerInterval);
@@ -112,80 +112,137 @@ $(document).ready(function() {
         startTimer(timeLeft); // No need to pass true, this is not a lunch break
     });
 
-    $("#add_task").click(function(e){
-        e.preventDefault();
-        var task_title = $("#task_title").val();
-    
-        var addTask = JSON.parse(localStorage.getItem('addTask')) || [];
-        var taskNo = addTask.length > 0 ? addTask[addTask.length - 1].no + 1 : 1;
-    
-        addTask.push({
-            'no': taskNo,
-            'task_title': task_title,
-            'curr_date':currentDate
-        });
-    
-        // Save the updated task list to local storage
-        localStorage.setItem('addTask', JSON.stringify(addTask));
-    
-        // Display tasks
-        var retrievedTask = JSON.parse(localStorage.getItem('addTask'));
-        var display_task = $("#displayTasks");
-        display_task.empty();
 
-        for (var i = 0; i < retrievedTask.length; i++) {
-            var tr = "<tr>";
-                tr += "<td>" + retrievedTask[i].no + "</td>";
-                tr += "<td></td>";
-                tr += "<td>" + retrievedTask[i].task_title + "</td>";
-                tr += "<td></td>";
-                tr += "<td></td>";
-                tr += "<td></td>";
-                tr += "<td></td>";
-                tr += "<td>" + retrievedTask[i].curr_date + "</td>";
-            tr += "</tr>";
-            
-            display_task.append(tr);
-        }
-    });
-
+    //Login
     $("#btnLogin").click(function(e){
         e.preventDefault();
 
-        var username = $("#username").val();
+        $.ajax({
+            url: './actions/login.php',
+            type: 'POST',
+            data: {
+                username: $('#username').val(),
+                password: $('#password').val()
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log(response);
+                Swal.fire({
+                    title: response.status === 'success' ? 'Success!' : 'Error!',
+                    text: response.message,
+                    icon: response.status,
+                    confirmButtonText: 'OK'
+                });
+
+                if (response.status === 'success') {
+                    window.location.href = "home.php";
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+
+
+    //Create Account
+    $("#register").click(function(e) {
+        e.preventDefault();
+    
         var password = $("#password").val();
-  
-        if (username == "betson" && password == "betson") {
-            Swal.fire({
-                title: "Login Success",
-                text: "Welcome to BetsonTasker",
-                icon: "success"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    sessionStorage.setItem("username",username);
-                    window.location.href = 'home.php';
+        var confirm_password = $("#confirm_password").val();
+    
+        if (password === confirm_password) {
+            $.ajax({
+                url: "./actions/create_account.php",
+                type: 'POST',
+                data: {
+                    lastname:$("#lastname").val(),
+                    firstname:$("#firstname").val(),
+                    position:$("#position").val(),
+                    username:$("#username").val(),
+                    password:$("#password").val(),
+                },
+                dataType: 'JSON', // Expect JSON response
+                success: function(response) {
+                    console.log(response);
+                    Swal.fire({
+                        title: response.status === 'success' ? 'Success!' : 'Error!',
+                        text: response.message,
+                        icon: response.status,
+                        confirmButtonText: 'OK'
+                    });
+                },
+                error: function(error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred: ' + error,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 }
             });
         } else {
             Swal.fire({
-                title: "Username or Password is incorrect",
-                text: "Error",
-                icon: "error"
+                title: 'Error!',
+                text: 'Passwords do not match',
+                icon: 'error',
+                confirmButtonText: 'OK'
             });
         }
     });
-
-	$("#nightMode").click(function(){
+    
+    
+    
+    $("#nightMode").click(function(){
 		$("body").toggleClass('bg-dark text-white');
 		$(".jumbotron").toggleClass('bg-dark text-white');
 		$("container").toggleClass('bg-dark text-light');
 	});
 
-    $("#btnLogout").click(function(){
-        sessionStorage.removeItem("username");
-        window.location.href="index.php";
+    $("#btnLogout").click(function(e){
+        e.preventDefault();
 
+        $.ajax({
+            url: './actions/logout.php',
+            type: 'POST',
+            dataType: 'json', 
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire({
+                        title: 'Logged Out',
+                        text: response.message,
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(function() {
+                        window.location.href = 'index.php';
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: response.message || 'An error occurred.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'An error occurred: ' + error,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
     });
+    
+    
 
     $("#tblTasks").DataTable({
         "scrollX": true,

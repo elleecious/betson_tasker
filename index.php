@@ -1,4 +1,5 @@
-<?php include('includes/header.php'); ?>
+<?php include('includes/header.php');  ?>
+<?php $page_title="Betson Tasker"; ?>
   <div class="container py-5 mt-5">
       <div class="row">
         <div class="col-md-12">
@@ -23,8 +24,8 @@
                       <label class="text-dark" for="password">Password</label>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                      <a class="btn btn-primary btn-lg" href="register.html"><span class="fa fa-user-plus"></span> Create Account</a>
-                      <button class="btn btn-dark btn-lg" type="submit" name="login" id="btnLogin"><i class="fa fa-sign-in"></i> Login</button>
+                      <a class="btn btn-primary btn-lg" href="register.php"><span class="fa fa-user-plus"></span> Create Account</a>
+                      <button class="btn btn-dark btn-lg" type="submit" name="btnLogin" id="btnLogin"><i class="fa fa-sign-in"></i> Login</button>
                     </div>
                   </form>
                 </div>
@@ -34,10 +35,4 @@
         </div>
       </div>
     </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/mdb.min.js"></script>
-<script src="js/sweetalert2.all.min.js"></script>
-<script src="js/script.js"></script>
-</body>
-</html>
+<?php include('includes/footer.php'); ?>
