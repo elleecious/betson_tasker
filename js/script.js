@@ -163,7 +163,7 @@ $(document).ready(function() {
             }).then((result) => {
                 if (result.isConfirmed) {
                     sessionStorage.setItem("username",username);
-                    window.location.href = 'home.html';
+                    window.location.href = 'home.php';
                 }
             });
         } else {
@@ -183,7 +183,7 @@ $(document).ready(function() {
 
     $("#btnLogout").click(function(){
         sessionStorage.removeItem("username");
-        window.location.href="index.html";
+        window.location.href="index.php";
 
     });
 
