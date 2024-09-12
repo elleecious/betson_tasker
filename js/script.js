@@ -168,7 +168,7 @@ $(document).ready(function() {
                     username:$("#username").val(),
                     password:$("#password").val(),
                 },
-                dataType: 'JSON', // Expect JSON response
+                dataType: 'JSON',
                 success: function(response) {
                     console.log(response);
                     Swal.fire({
@@ -196,6 +196,38 @@ $(document).ready(function() {
             });
         }
     });
+
+    $("#add_task").click(function(e){
+        e.preventDefault();
+
+        $.ajax({
+            url: "./actions/add_task.php",
+            type: 'POST',
+            data: { 
+                task_title:$("#task_title").val(),
+                task_title:$("#task_title").val(),
+                task_date:$("#task_date").val(),
+            },
+            dataType: 'JSON',
+            success: function(response) { 
+                console.log(response);
+                Swal.fire({
+                    title: response.status === 'success' ? 'Success!' : 'Error!',
+                    text: response.message,
+                    icon: response.status,
+                    confirmButtonText: 'OK'
+                });
+            },
+            error: function(error){
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+    });
     
     
     
@@ -203,6 +235,7 @@ $(document).ready(function() {
 		$("body").toggleClass('bg-dark text-white');
 		$(".jumbotron").toggleClass('bg-dark text-white');
 		$("container").toggleClass('bg-dark text-light');
+        $(".card").toggleClass('bg-dark text-light');
 	});
 
     $("#btnLogout").click(function(e){
@@ -240,17 +273,5 @@ $(document).ready(function() {
                 });
             }
         });
-    });
-    
-    
-
-    $("#tblTasks").DataTable({
-        "scrollX": true,
-        "info": true,
-        "lengthChange": true,
-        "paging": true,
-        "searching": true,
-        "pageLength":10,
-        "order": [],
     });
 });

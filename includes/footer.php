@@ -4,6 +4,7 @@
 <script type="text/javascript" src="<?php echo $short_url;?>js/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="<?php echo $short_url;?>js/bootstrap.min.js"></script>
 <script type="text/javascript" src="<?php echo $short_url;?>js/mdb.min.js"></script>
+<script type="text/javascript" src="<?php echo $short_url;?>js/bootstrap-select.min.js"></script>
 <script type="text/javascript" src="<?php echo $short_url;?>js/sweetalert2.all.min.js"></script>
 <script type="text/javascript" src="<?php echo $short_url;?>js/addons/datatables.min.js"></script>
 <script type="text/javascript" src="<?php echo $short_url;?>js/script.js"></script>

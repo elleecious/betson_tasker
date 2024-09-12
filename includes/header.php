@@ -11,6 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="<?php echo $short_url;?>css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $short_url;?>css/mdb.min.css">
+    <link rel="stylesheet" type="text/css" href="<?php echo $short_url ?>css/bootstrap-select.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $short_url;?>css/addons/datatables.min.css">
     <link rel="stylesheet" type="text/css" href="<?php echo $short_url;?>css/sweetalert2.min.css">
     <link rel="shortcut icon" href="<?php echo $short_url;?>img/favicon.ico" type="image/x-icon">
@@ -23,6 +24,9 @@
             font-family: "Poppins", sans-serif;
             font-weight: 300;
             font-style: normal;
+        }
+        .betson-color {
+            background-color: #002E5D;
         }
     </style>
 </head>

@@ -1,23 +1,7 @@
 <?php include('includes/header.php'); ?>
 <?php include('includes/session.php') ?>
 <?php $page_title="Betson Tasker"; ?>
-    <nav class="mb-1 navbar navbar-expand-lg navbar-dark" style="background-color: #002E5D;">
-        <a class="navbar-brand" href="#">
-           BetsonTasker
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav"
-        aria-controls="basicExampleNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-        </button>
-        <div class="collapse navbar-collapse" id="basicExampleNav">
-            <ul class="navbar-nav ml-auto">
-                <a class="nav-link"><span class="fa fa-bell text-white"></span></a>
-                <a class="nav-link" id="nightMode"><span class="fa fa-moon text-white"></span></a>
-                <a class="nav-link text-white" id="btnLogout">Logout</a>
-            </ul>
-        </div>
-    </nav>
+<?php include('includes/navbar.php'); ?>
     <div class="container mt-5">
         <h2>Welcome, <span><?php echo $name; ?></span></h2>
         <h6><?php echo $position; ?></h6>
@@ -33,17 +17,23 @@
         <table class="table table-striped tabled-bordered table-sm text-center" id="tblTasks" width="100%" cellspacing="0" cellpadding="0">
             <thead>
                 <tr>
-                    <th>No</th>
-                    <th>Name</th>
-                    <th>Tasks</th>
-                    <th>Position</th>
-                    <th>Tasks</th>
-                    <th>Assigned By</th>
-                    <th>Status</th>
-                    <th>Date</th>
+                    <?php
+                        $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date");
+                        foreach ($task_head as $task_val) {
+                            echo "<th>".$task_val."</th>";
+                        }
+                    ?>
+                </tr>
                 </tr>
             </thead>
-            <tbody id="displayTasks"></tbody>
+            <tbody>
+                <?php
+                    $disp_tasks = retrieve("SELECT * FROM task LEFT JOIN users ON task.user_id=users.id",array());
+                    for ($i=0; $i < COUNT($disp_tasks); $i++) { 
+                        //To be continued hahaahahahaha
+                    }
+                ?>
+            </tbody>
         </table>
     </div>
 
@@ -73,14 +63,47 @@
                             <label class="text-dark" for="task_desc">Description</label>
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="md-form">
+                            <input placeholder="Selected date" type="text" id="task_date" class="form-control datepicker">
+                            <label for="task_date">Date</label>
+                        </div>
+                    </div>
+                    <div class="col-md-12 d-none">
+                        <div class="md-form">
+                            <select class="mdb-select md-form" name="assigned_by" id="assigned_by">
+                                <option value="">Select Employee</option>
+                                <?php
+                                    $employees = retrieve("SELECT * FROM users ORDER BY firstname ASC",array());
+                                    for ($i=0; $i < COUNT($employees); $i++) { 
+                                        echo "<option value='".$employees[$i]['id']."'>".$employees[$i]['firstname']." ".$employees[$i]['lastname']."</option>";
+                                    }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-success ml-auto" name="add_task" id="add_task">Add</button>
                 </div>
             </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
   </div>
 <?php include('includes/footer.php'); ?>
+<script>
+$(document).ready(function(){
+
+    $('.datepicker').pickadate();
+
+    $('.mdb-select').materialSelect();
+    $("#tblTasks").DataTable({
+        "scrollX": true,
+        "info": true,
+        "lengthChange": true,
+        "paging": true,
+        "searching": true,
+        "pageLength":10,
+        "order": [],
+    });
+});
+</script>
