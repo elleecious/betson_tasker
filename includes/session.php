@@ -9,4 +9,5 @@ $user = $get_account[0];
 $user_id = $user['id'];
 $name = $user['firstname'] . " " . $user['lastname'];
 $position = $user['position'];
+$level = $user['level'];
 ?>

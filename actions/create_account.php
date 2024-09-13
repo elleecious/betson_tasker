@@ -13,6 +13,7 @@ $lastname = $_POST['lastname'];
 $firstname = $_POST['firstname'];
 $position = $_POST['position'];
 $username = $_POST['username'];
+$level = $_POST['level'];
 $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 $created_at = date('Y-m-d H:i:s a');
 
@@ -31,9 +32,9 @@ if ($prev_dup_username_sql && $prev_dup_username_sql[0]['username_exist'] > 0) {
     $response = array('status' => 'error', 'message' => 'Username already exists');
 } else {
     $create_account_result = manage(
-        "INSERT INTO users (lastname, firstname, position, username, user_password, created_at) 
-        VALUES (?,?,?,?,?,?)",
-        array($lastname,$firstname,$position,$username,$hashed_password,$created_at));
+        "INSERT INTO users (lastname, firstname, position, level, username, user_password, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)",
+        array($lastname,$firstname,$position,$level,$username,$hashed_password,$created_at));
     
     $logs_result = manage(
         "INSERT INTO logs (computer_name, ip_address,page,action,details,date) 
@@ -50,6 +51,7 @@ if ($prev_dup_username_sql && $prev_dup_username_sql[0]['username_exist'] > 0) {
                         Last Name: ".$lastname."<br>
                         First Name: ".$firstname."<br>
                         Position: ".$position."<br>
+                        Level: ".$level."<br>
                         Username: ".$username."<br>
                         Date Created: ".$created_at."
                     </p>

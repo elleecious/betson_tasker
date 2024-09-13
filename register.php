@@ -33,6 +33,16 @@
                                     <label for="position">Position</label>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="md-form">
+                                    <select class="mdb-select md-form" name="level" id="level">
+                                        <option value="">Select Level</option>
+                                        <option value="1">Director</option>
+                                        <option value="2">Admin</option>
+                                        <option value="3">Agent</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-4">
@@ -65,3 +75,8 @@
     </div>
 </div>
 <?php include('includes/footer.php'); ?>
+<script>
+    $(document).ready(function () {
+        $('.mdb-select').materialSelect();
+    });
+</script>
