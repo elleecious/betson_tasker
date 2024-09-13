@@ -165,6 +165,7 @@ $(document).ready(function() {
                     lastname:$("#lastname").val(),
                     firstname:$("#firstname").val(),
                     position:$("#position").val(),
+                    level: $("#level").val(),
                     username:$("#username").val(),
                     password:$("#password").val(),
                 },
@@ -177,6 +178,7 @@ $(document).ready(function() {
                         icon: response.status,
                         confirmButtonText: 'OK'
                     });
+                    $("#frmRegistration")[0].reset();
                 },
                 error: function(error) {
                     Swal.fire({
@@ -205,8 +207,9 @@ $(document).ready(function() {
             type: 'POST',
             data: { 
                 task_title:$("#task_title").val(),
-                task_title:$("#task_title").val(),
+                task_desc:$("#task_desc").val(),
                 task_date:$("#task_date").val(),
+                due_date: $("#due_date").val(),
             },
             dataType: 'JSON',
             success: function(response) { 
@@ -217,6 +220,8 @@ $(document).ready(function() {
                     icon: response.status,
                     confirmButtonText: 'OK'
                 });
+                $("#frmCreateTask")[0].reset();
+                $("#modalCreateTask").modal('hide');
             },
             error: function(error){
                 Swal.fire({
@@ -234,8 +239,10 @@ $(document).ready(function() {
     $("#nightMode").click(function(){
 		$("body").toggleClass('bg-dark text-white');
 		$(".jumbotron").toggleClass('bg-dark text-white');
-		$("container").toggleClass('bg-dark text-light');
+		$(".container").toggleClass('bg-dark text-light');
         $(".card").toggleClass('bg-dark text-light');
+        $(".table").toggleClass('bg-dark text-light');
+
 	});
 
     $("#btnLogout").click(function(e){

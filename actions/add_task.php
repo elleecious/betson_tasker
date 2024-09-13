@@ -16,30 +16,31 @@ getenv('HTTP_FORWARDED')?: getenv('REMOTE_ADDR');
 $ip_address_2 = ($_SERVER['REMOTE_ADDR'] == '::1') ? '127.0.0.1' : $ip_address;
 $task_title = $_POST['task_title'];
 $task_desc = $_POST['task_desc'];
-$task_date = $_POST['task_date'];
+$task_date = date('Y-m-d',strtotime($_POST['task_date']));
+$due_date = date('Y-m-d',strtotime($_POST['due_date']));
 $created_at = date('Y-m-d H:i:s a');
 
 $add_task_sql = manage(
-    "INSERT INTO task (user_id,task_title,task_desc,status,task_date,date_created) 
-    VALUES (?,?,?,?,?,?)
-    ",array($user_id,$task_title,$task_desc,'1',date('Y-m-d H:i:s a')));
+    "INSERT INTO task (user_id,title,description,assign_by,status,task_date,due_date,date_created) 
+    VALUES (?,?,?,?,?,?,?,?)
+    ",array($user_id,$task_title,$task_desc,'','1',$task_date,$due_date,$created_at));
 
 $logs_result = manage(
-    "INSERT INTO logs (computer_name, ip_address,page,action,details,date_created) 
+    "INSERT INTO logs (computer_name,ip_address,page,action,details,date) 
     VALUES (?,?,?,?,?,?)",
     array(
         gethostbyaddr($_SERVER['REMOTE_ADDR']),
         $ip_address_2,              
         "HOME",
         "CREATE",         
-        "
-            <details>
-                <p>Create Task</p>
-                <>
+        "<details>
+            <p>Create Task</p>
+                <p>
                     Name: ".$name."
                     Task Title: ".$task_title."<br>
                     Task Description: ".$task_desc."<br>
-                    Task Date: ".$task_date."
+                    Task Date Assigned: ".$task_date."<br>
+                    Task Due Date: ".$due_date."<br>
                     Date Created: ".$created_at."
                 </p>
             </details>

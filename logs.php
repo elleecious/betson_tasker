@@ -6,7 +6,7 @@
             <div class="col-md-12 mb-2">
 				<div class="card">
 					<div class="card-header p-2 betson-color text-white">
-						Inventory Logs
+						System Logs
 					</div>
                     <div class="card-body">
 						<div class="row">
@@ -56,7 +56,7 @@ $(document).ready(function () {
 		"lengthChange": true,
 		"paging": true,
 		"searching": true,
-        "pageLength":15,
+        "pageLength":20,
 		"order": [],
 	});
 });

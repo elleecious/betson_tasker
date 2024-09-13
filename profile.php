@@ -1,7 +1,8 @@
 <?php include('includes/header.php'); ?>
+<?php include('library/functions.php') ?>
 <?php $page_title = "Betson Tracker"; ?>
 <?php
-    $user_profile = retrieve("SELECT * FROM users WHERE username=?",array($_GET['username']));
+    $user_profile = retrieve("SELECT * FROM users WHERE id=?",array($_GET['id']));
 ?>
 <?php include('includes/navbar.php'); ?>
 <section style="background-color: #eee;">
@@ -15,8 +16,7 @@
                         <p class="text-muted mb-1"><?php echo $user_profile[0]['position'] ?></p>
                         <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
                         <div class="d-flex justify-content-center mb-2">
-                            <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary" onclick="window.location.href='edit.profile.php'">Edit Profile</button>
-                            <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-primary ms-1">Change Password</button>
+                            <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary" onclick="window.location.href='edit.profile.php?edit=<?php echo $user_profile[0]['id']; ?>'">Edit Profile</button>
                         </div>
                     </div>
                 </div>
@@ -44,14 +44,22 @@
                         <hr>
                         <div class="row">
                             <div class="col-sm-3">
+                                <p class="mb-0">Level</p>
+                            </div>
+                            <div class="col-sm-9">
+                                <p class="text-muted mb-0"><?php getLevel($user_profile[0]['level']); ?></p>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-sm-3">
                                 <p class="mb-0">Username</p>
                             </div>
                             <div class="col-sm-9">
                                 <p class="text-muted mb-0"><?php echo $user_profile[0]['username']; ?></p>
                             </div>
                         </div>
-                        <hr>
-                        <div class="row">
+                        <div class="row d-none">
                             <div class="col-sm-3">
                                 <p class="mb-0">Mobile</p>
                             </div>
@@ -59,8 +67,8 @@
                                 <p class="text-muted mb-0">(098) 765-4321</p>
                             </div>
                         </div>
-                        <hr>
-                        <div class="row">
+                        <!-- <hr> -->
+                        <div class="row d-none">
                             <div class="col-sm-3">
                                 <p class="mb-0">Address</p>
                             </div>
