@@ -14,6 +14,8 @@ getenv('HTTP_X_FORWARDED')?: getenv('HTTP_FORWARDED_FOR')?:
 getenv('HTTP_FORWARDED')?: getenv('REMOTE_ADDR');
 
 $ip_address_2 = ($_SERVER['REMOTE_ADDR'] == '::1') ? '127.0.0.1' : $ip_address;
+
+
 $task_title = $_POST['task_title'];
 $task_desc = $_POST['task_desc'];
 $task_date = date('Y-m-d',strtotime($_POST['task_date']));
@@ -50,9 +52,9 @@ $logs_result = manage(
 );
 
 if ($add_task_sql && $logs_result) {
-    $response = array('status' => 'success', 'message' => 'Registration successful');
+    $response = array('status' => 'success', 'message' => 'Added Task successfully');
 } else {
-    $response = array('status' => 'error', 'message' => 'Failed to register');
+    $response = array('status' => 'error', 'message' => 'Failed to add a task');
 }
 
 echo json_encode($response);

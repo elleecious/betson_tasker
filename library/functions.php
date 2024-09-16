@@ -4,7 +4,8 @@
         $level_sql = retrieve("SELECT * FROM users WHERE level=?", array($level));
         $result = ($level_sql[0]['level'] == 1) ? "Director" : 
         (($level_sql[0]['level'] == 2) ? "Admin" : 
-        (($level_sql[0]['level'] == 3) ? "Agent" : "Unknown"));
+        (($level_sql[0]['level'] == 3) ? "Leadership" :
+        (($level_sql[0]['level'] == 4) ? "Agent" : "Unknown")));
         echo $result;
     }
 
@@ -28,8 +29,9 @@
                 $color = "bg-success";
                 break;
             case 5:
-                $status_name = "On Hold";
+                $status_name = "Paused";
                 $color = "bg-secondary";
+                break;
             default:
                 $status_name = "Unknown";
                 $color = "bg-danger";
