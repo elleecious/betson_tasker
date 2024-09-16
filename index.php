@@ -24,8 +24,8 @@
                       <label class="text-dark" for="password">Password</label>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                      <a class="btn btn-primary btn-lg" href="register.php"><span class="fa fa-user-plus"></span> Create Account</a>
-                      <button class="btn btn-dark btn-lg" type="submit" name="btnLogin" id="btnLogin"><i class="fa fa-sign-in"></i> Login</button>
+                      <a class="btn blue-gradient btn-lg" href="register.php"><span class="fa fa-user-plus"></span> Create Account</a>
+                      <button class="btn btn-lg btn-rounded text-white" style="background-color: #55EFC4;" type="submit" name="btnLogin" id="btnLogin"><i class="fa fa-sign-in"></i> Login</button>
                     </div>
                   </form>
                 </div>

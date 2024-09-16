@@ -1,4 +1,5 @@
 <?php include('includes/header.php') ?>
+<?php $page_title="Betson Tasker"; ?>
     <div class="row mx-auto mt-3">
         <div class="col-md-12 mb-2">
             <div class="row">
@@ -15,27 +16,20 @@
                         <hr>
                         <div class="card-body mt-3">
                             <div class="row text-center">
-                                <div class="col-md-2">
-                                    <div class="p-3 bg-light">
-                                        <h2>ON LUNCH BREAK</h2>
-                                        <hr class="divider">
-                                        <h5>John Ellee Robado</h5>
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="p-3 bg-light">
-                                        <h2>ON LUNCH BREAK</h2>
-                                        <hr class="divider">
-                                        <h5>John Ellee Robado</h5>
-                                    </div>
-                                </div>
-                                <div class="col-md-2">
-                                    <div class="p-3 bg-warning">
-                                        <h2>ON SHORT BREAK</h2>
-                                        <hr class="divider">
-                                        <h5>John Ellee Robado</h5>
-                                    </div>
-                                </div>
+                                <?php
+                                    $employee_list=retrieve("SELECT * FROM users",array());
+                                    for ($i=0; $i < COUNT($employee_list); $i++) { 
+                                        echo "
+                                            <div class='col-md-2 mt-3'>
+                                                <div class='p-3 text-white bg-primary'>
+                                                    <h3>ON LUNCH BREAK</h3>
+                                                    <hr class='divider'>
+                                                    <h5>".$employee_list[$i]['firstname']." ".$employee_list[$i]['lastname']."</h5>
+                                                </div>
+                                            </div>
+                                        ";
+                                    }
+                                ?>
                             </div>
                         </div>
                     </div>

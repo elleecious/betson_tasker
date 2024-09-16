@@ -36,10 +36,11 @@
                             <div class="col-md-6">
                                 <div class="md-form">
                                     <select class="mdb-select md-form" name="level" id="level">
-                                        <option value="">Select Level</option>
-                                        <option value="1">Director</option>
+                                        <option value="">Select Tean</option>
+                                        <option value="1">Executive</option>
                                         <option value="2">Admin</option>
-                                        <option value="3">Agent</option>
+                                        <option value="3">Leadership</option>
+                                        <option value="4">Agent</option>
                                     </select>
                                 </div>
                             </div>

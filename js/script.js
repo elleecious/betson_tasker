@@ -132,11 +132,11 @@ $(document).ready(function() {
                     text: response.message,
                     icon: response.status,
                     confirmButtonText: 'OK'
-                });
-
-                if (response.status === 'success') {
-                    window.location.href = "home.php";
-                }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "home.php";
+                    }
+                })
             },
             error: function(xhr, status, error) {
                 Swal.fire({
@@ -233,6 +233,168 @@ $(document).ready(function() {
             }
         })
     });
+
+    $("#save_task").click(function(e){
+        e.preventDefault();
+
+        $.ajax({
+            url: "./actions/save_task.php",
+            type: 'POST',
+            data: { 
+                edit_task_id: $("#edit_task_id").val(),
+                edit_task_title:$("#edit_task_title").val(),
+                edit_task_desc:$("#edit_task_desc").val(),
+                edit_task_date:$("#edit_task_date").val(),
+                edit_task_due:$("#edit_task_due").val(),
+            },
+            dataType: 'JSON',
+            success: function(response) { 
+                console.log(response);
+                Swal.fire({
+                    title: response.status === 'success' ? 'Success!' : 'Error!',
+                    text: response.message,
+                    icon: response.status,
+                    confirmButtonText: 'OK'
+                });
+                $("#edit_task_modal").modal('hide');
+            },
+            error: function(error){ 
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+
+    });
+
+    $("#delete_task").click(function(e){ 
+        e.preventDefault();
+
+        $.ajax({
+            url: "./actions/delete_task.php",
+            type: 'POST',
+            data:{
+                delete_task_id:$("#delete_task_id").val()
+            },
+            dataType:'JSON',
+            success:function (response) { 
+                console.log(response);
+                Swal.fire({
+                    title: response.status === 'success' ? 'Success!' : 'Error!',
+                    text: response.message,
+                    icon: response.status,
+                    confirmButtonText: 'OK'
+                });
+                $("#delete_task_modal").modal('hide');
+             },
+             error: function(error) {  
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+             }
+        });
+     });
+
+
+     $(".back_to_new_task").click(function() {
+        var taskId = $(this).attr("data-task-id");
+        var currentStatus = $(this).attr("data-current-status");
+        
+        updateTaskStatus(taskId, currentStatus, 'backward');
+    });
+
+    $(".back_to_pending_task").click(function() {
+        var taskId = $(this).attr("data-task-id");
+        var currentStatus = $(this).attr("data-current-status");
+        
+        updateTaskStatus(taskId, currentStatus, 'backward');
+    });
+
+    $(".back_to_ongoing_task").click(function() {
+        var taskId = $(this).attr("data-task-id");
+        var currentStatus = $(this).attr("data-current-status");
+        
+        updateTaskStatus(taskId, currentStatus, 'backward');
+    });
+
+
+    $(".move_to_pending_task").click(function() {
+        var taskId = $(this).attr("data-task-id");
+        var currentStatus = $(this).attr("data-current-status");
+        
+        updateTaskStatus(taskId, currentStatus, 'forward');
+
+    });
+    
+    $(".move_to_ongoing_task").click(function() {
+        var taskId = $(this).attr("data-task-id");
+        var currentStatus = $(this).attr("data-current-status");
+    
+        updateTaskStatus(taskId, currentStatus, 'forward');
+    });
+
+    $(".move_to_complete_task").click(function() {
+        var taskId = $(this).attr("data-task-id");
+        var currentStatus = $(this).attr("data-current-status");
+    
+        updateTaskStatus(taskId, currentStatus, 'forward');
+    });
+
+    $(".paused_task").click(function() {
+        var taskId = $(this).attr("data-task-id");
+        var currentStatus = $(this).attr("data-current-status");
+    
+        updateTaskStatus(taskId, currentStatus, 'paused');
+    });
+
+    function updateTaskStatus(taskId, currentStatus, direction) {
+        $.ajax({
+            url: "./actions/update_task_status.php",
+            method: 'POST',
+            data: { 
+                task_id: taskId, 
+                current_status: currentStatus, 
+                direction: direction
+            },
+            success: function(response) {
+                console.log(response);
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Task status updated successfully!',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to move task status.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            },
+            error: function (error) { 
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+             }
+        });
+    }
+
     
     
     
@@ -242,7 +404,6 @@ $(document).ready(function() {
 		$(".container").toggleClass('bg-dark text-light');
         $(".card").toggleClass('bg-dark text-light');
         $(".table").toggleClass('bg-dark text-light');
-
 	});
 
     $("#btnLogout").click(function(e){
@@ -281,4 +442,5 @@ $(document).ready(function() {
             }
         });
     });
+
 });

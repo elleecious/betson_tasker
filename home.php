@@ -3,428 +3,401 @@
 <?php include('library/functions.php'); ?>
 <?php $page_title="Betson Tasker"; ?>
 <?php include('includes/navbar.php'); ?>
-    <div class="container py-5">
-        <h2>Welcome, <span><?php echo $name; ?></span></h2>
-        <h6><?php echo $position; ?></h6>
-        <div class="jumbotron">
-            <h4 class="display-4 d-flex justify-content-center" id="status"></h4>
-            <h4 class="d-flex justify-content-center font-weight-bold" id="timer"></h4>
-            <p class="d-flex justify-content-center" id="breakCount">Breaks Taken: 0</p>
-        </div>
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCreateTask">
-            CREATE TASK
-        </button>
-        <?php
-           echo ($level=="1") ? '<button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalAssignTask">
-            ASSIGN A TASK
-        </button>' : ''
-        ?>
-        <button class="btn btn-success" id="breakButton">Take a Break</button>
-        <div class="row my-4">
-            <div class="col-md-12">
-                <section class="mx-2 pb-3">
-                    <ul class="nav nav-tabs md-tabs" id="myTabMD" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" id="new-tab-md" data-toggle="tab" href="#new-md" role="tab" aria-controls="new-md"
-                            aria-selected="true">New Tasks</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="pending-tab-md" data-toggle="tab" href="#pending-md" role="tab" aria-controls="pending-md"
-                            aria-selected="true">Pending Tasks</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="ongoing-tab-md" data-toggle="tab" href="#ongoing-md" role="tab" aria-controls="ongoing-md"
-                            aria-selected="false">Ongoing Tasks</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="completed-tab-md" data-toggle="tab" href="#completed-md" role="tab" aria-controls="completed-md"
-                            aria-selected="false">Completed Tasks</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" id="onhold-tab-md" data-toggle="tab" href="#onhold-md" role="tab" aria-controls="onhold-md"
-                            aria-selected="false">On Hold Tasks</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content card pt-5" id="myTabContentMD">
-                        <div class="tab-pane fade show active" id="new-md" role="tabpanel" aria-labelledby="new-tab-md">
-                            <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksNew" width="100%" cellspacing="0" cellpadding="0">
-                                <thead>
-                                    <tr>
-                                        <?php
-                                            $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
-                                            foreach ($task_head as $task_val) {
-                                                echo "<th>".$task_val."</th>";
-                                            }
-                                        ?>
-                                    </tr>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                        $disp_tasks = retrieve("SELECT
-                                            CONCAT(users.firstname, ' ', users.lastname) AS name,
-                                                users.position AS position,
-                                                users.level AS level,
-                                                task.title AS title,
-                                                task.id AS task_id,
-                                                task.description AS description,
-                                                task.assign_by AS assign_by,
-                                                task.status AS status,
-                                                task.task_date AS task_date,
-                                                task.due_date AS due_date 
-                                                FROM task LEFT JOIN users ON task.user_id=users.id 
-                                                WHERE users.username=?",array($login_username));
-                                            for ($i=0; $i < COUNT($disp_tasks); $i++) { 
-                                                echo "<tr>
-                                                        <td>".$disp_tasks[$i]['task_id']."</td>
-                                                        <td>".$disp_tasks[$i]['position']."</td>
-                                                        <td>".$disp_tasks[$i]['name']."</td>
-                                                        <td>".$disp_tasks[$i]['title']."</td>
-                                                        <td>
-                                                            <details>
-                                                                ".$disp_tasks[$i]['description']."
-                                                            </details>
-                                                        </td>
-                                                        <td>".$disp_tasks[$i]['assign_by']."</td>
-                                                        ".getTaskStatus($disp_tasks[$i]['status'])."
-                                                        <td>".date("F d, Y",strtotime($disp_tasks[$i]['task_date']))."</td>
-                                                        <td>".date("F d, Y", strtotime($disp_tasks[$i]['due_date']))."</td>
-                                                        <td>
-                                                            <a class='mr-1 move_task'><span class='fas fa-arrow-alt-circle-right'></span></a>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#edit_task_modal'>
-                                                                <i class='fas fa-edit'></i>
-                                                            </span>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#delete_task_modal'>
-                                                                <i class='fas fa-trash'></i>
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ";
-
-                                            }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="tab-pane fade" id="pending-md" role="tabpanel" aria-labelledby="pending-tab-md">
-                            <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksPending" width="100%" cellspacing="0" cellpadding="0">
-                                <thead>
-                                    <tr>
-                                        <?php
-                                            $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
-                                            foreach ($task_head as $task_val) {
-                                                echo "<th>".$task_val."</th>";
-                                            }
-                                        ?>
-                                    </tr>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                        $disp_tasks = retrieve("SELECT
-                                            CONCAT(users.firstname, ' ', users.lastname) AS name,
-                                                users.position AS position,
-                                                users.level AS level,
-                                                task.title AS title,
-                                                task.id AS task_id,
-                                                task.description AS description,
-                                                task.assign_by AS assign_by,
-                                                task.status AS status,
-                                                task.task_date AS task_date,
-                                                task.due_date AS due_date 
-                                                FROM task LEFT JOIN users ON task.user_id=users.id 
-                                                WHERE users.username=?",array($login_username));
-                                            for ($i=0; $i < COUNT($disp_tasks); $i++) { 
-                                                echo "<tr>
-                                                        <td>".$disp_tasks[$i]['task_id']."</td>
-                                                        <td>".$disp_tasks[$i]['position']."</td>
-                                                        <td>".$disp_tasks[$i]['name']."</td>
-                                                        <td>".$disp_tasks[$i]['title']."</td>
-                                                        <td>
-                                                            <details>
-                                                                ".$disp_tasks[$i]['description']."
-                                                            </details>
-                                                        </td>
-                                                        <td>".$disp_tasks[$i]['assign_by']."</td>
-                                                        ".getTaskStatus($disp_tasks[$i]['status'])."
-                                                        <td>".date("F d, Y",strtotime($disp_tasks[$i]['task_date']))."</td>
-                                                        <td>".date("F d, Y", strtotime($disp_tasks[$i]['due_date']))."</td>
-                                                        <td>
-                                                            <a class='mr-1 move_task'><span class='fas fa-arrow-alt-circle-right'></span></a>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#edit_task_modal'>
-                                                                <i class='fas fa-edit'></i>
-                                                            </span>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#delete_task_modal'>
-                                                                <i class='fas fa-trash'></i>
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ";
-
-                                            }
-                                    ?>
-                                </tbody>
-                            </table> 
-                        </div>
-                        <div class="tab-pane fade" id="ongoing-md" role="tabpanel" aria-labelledby="ongoing-tab-md">
-                            <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksOngoing" width="100%" cellspacing="0" cellpadding="0">
-                                <thead>
-                                    <tr>
-                                        <?php
-                                            $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
-                                            foreach ($task_head as $task_val) {
-                                                echo "<th>".$task_val."</th>";
-                                            }
-                                        ?>
-                                    </tr>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                        $disp_tasks = retrieve("SELECT
-                                            CONCAT(users.firstname, ' ', users.lastname) AS name,
-                                                users.position AS position,
-                                                users.level AS level,
-                                                task.title AS title,
-                                                task.id AS task_id,
-                                                task.description AS description,
-                                                task.assign_by AS assign_by,
-                                                task.status AS status,
-                                                task.task_date AS task_date,
-                                                task.due_date AS due_date 
-                                                FROM task LEFT JOIN users ON task.user_id=users.id 
-                                                WHERE users.username=?",array($login_username));
-                                            for ($i=0; $i < COUNT($disp_tasks); $i++) { 
-                                                echo "<tr>
-                                                        <td>".$disp_tasks[$i]['task_id']."</td>
-                                                        <td>".$disp_tasks[$i]['position']."</td>
-                                                        <td>".$disp_tasks[$i]['name']."</td>
-                                                        <td>".$disp_tasks[$i]['title']."</td>
-                                                        <td>
-                                                            <details>
-                                                                ".$disp_tasks[$i]['description']."
-                                                            </details>
-                                                        </td>
-                                                        <td>".$disp_tasks[$i]['assign_by']."</td>
-                                                        ".getTaskStatus($disp_tasks[$i]['status'])."
-                                                        <td>".date("F d, Y",strtotime($disp_tasks[$i]['task_date']))."</td>
-                                                        <td>".date("F d, Y", strtotime($disp_tasks[$i]['due_date']))."</td>
-                                                        <td>
-                                                            <a class='mr-1 move_task'><span class='fas fa-arrow-alt-circle-right'></span></a>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#edit_task_modal'>
-                                                                <i class='fas fa-edit'></i>
-                                                            </span>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#delete_task_modal'>
-                                                                <i class='fas fa-trash'></i>
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ";
-
-                                            }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="tab-pane fade" id="completed-md" role="tabpanel" aria-labelledby="completed-tab-md">
-                            <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksCompleted" width="100%" cellspacing="0" cellpadding="0">
-                                <thead>
-                                    <tr>
-                                        <?php
-                                            $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
-                                            foreach ($task_head as $task_val) {
-                                                echo "<th>".$task_val."</th>";
-                                            }
-                                        ?>
-                                    </tr>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                        $disp_tasks = retrieve("SELECT
-                                            CONCAT(users.firstname, ' ', users.lastname) AS name,
-                                                users.position AS position,
-                                                users.level AS level,
-                                                task.title AS title,
-                                                task.id AS task_id,
-                                                task.description AS description,
-                                                task.assign_by AS assign_by,
-                                                task.status AS status,
-                                                task.task_date AS task_date,
-                                                task.due_date AS due_date 
-                                                FROM task LEFT JOIN users ON task.user_id=users.id 
-                                                WHERE users.username=?",array($login_username));
-                                            for ($i=0; $i < COUNT($disp_tasks); $i++) { 
-                                                echo "<tr>
-                                                        <td>".$disp_tasks[$i]['task_id']."</td>
-                                                        <td>".$disp_tasks[$i]['position']."</td>
-                                                        <td>".$disp_tasks[$i]['name']."</td>
-                                                        <td>".$disp_tasks[$i]['title']."</td>
-                                                        <td>
-                                                            <details>
-                                                                ".$disp_tasks[$i]['description']."
-                                                            </details>
-                                                        </td>
-                                                        <td>".$disp_tasks[$i]['assign_by']."</td>
-                                                        ".getTaskStatus($disp_tasks[$i]['status'])."
-                                                        <td>".date("F d, Y",strtotime($disp_tasks[$i]['task_date']))."</td>
-                                                        <td>".date("F d, Y", strtotime($disp_tasks[$i]['due_date']))."</td>
-                                                        <td>
-                                                            <a class='mr-1 move_task'><span class='fas fa-arrow-alt-circle-right'></span></a>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#edit_task_modal'>
-                                                                <i class='fas fa-edit'></i>
-                                                            </span>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#delete_task_modal'>
-                                                                <i class='fas fa-trash'></i>
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ";
-
-                                            }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="tab-pane fade" id="onhold-md" role="tabpanel" aria-labelledby="onhold-tab-md">
-                            <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksOnHold" width="100%" cellspacing="0" cellpadding="0">
-                                <thead>
-                                    <tr>
-                                        <?php
-                                            $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
-                                            foreach ($task_head as $task_val) {
-                                                echo "<th>".$task_val."</th>";
-                                            }
-                                        ?>
-                                    </tr>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                        $disp_tasks = retrieve("SELECT
-                                            CONCAT(users.firstname, ' ', users.lastname) AS name,
-                                                users.position AS position,
-                                                users.level AS level,
-                                                task.title AS title,
-                                                task.id AS task_id,
-                                                task.description AS description,
-                                                task.assign_by AS assign_by,
-                                                task.status AS status,
-                                                task.task_date AS task_date,
-                                                task.due_date AS due_date 
-                                                FROM task LEFT JOIN users ON task.user_id=users.id 
-                                                WHERE users.username=?",array($login_username));
-                                            for ($i=0; $i < COUNT($disp_tasks); $i++) { 
-                                                echo "<tr>
-                                                        <td>".$disp_tasks[$i]['task_id']."</td>
-                                                        <td>".$disp_tasks[$i]['position']."</td>
-                                                        <td>".$disp_tasks[$i]['name']."</td>
-                                                        <td>".$disp_tasks[$i]['title']."</td>
-                                                        <td>
-                                                            <details>
-                                                                ".$disp_tasks[$i]['description']."
-                                                            </details>
-                                                        </td>
-                                                        <td>".$disp_tasks[$i]['assign_by']."</td>
-                                                        ".getTaskStatus($disp_tasks[$i]['status'])."
-                                                        <td>".date("F d, Y",strtotime($disp_tasks[$i]['task_date']))."</td>
-                                                        <td>".date("F d, Y", strtotime($disp_tasks[$i]['due_date']))."</td>
-                                                        <td>
-                                                            <a class='mr-1 move_task'><span class='fas fa-arrow-alt-circle-right'></span></a>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#edit_task_modal'>
-                                                                <i class='fas fa-edit'></i>
-                                                            </span>
-                                                            <span class='mr-1 edit_task'
-                                                                data-toggle='modal' data-target='#delete_task_modal'>
-                                                                <i class='fas fa-trash'></i>
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ";
-
-                                            }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </div>
+<div class="container py-5">
+    <h2>Welcome, <span><?php echo $name; ?></span></h2>
+    <h6><?php echo $position; ?></h6>
+    <div class="jumbotron">
+        <h4 class="display-4 d-flex justify-content-center" id="status"></h4>
+        <h4 class="d-flex justify-content-center font-weight-bold" id="timer"></h4>
+        <p class="d-flex justify-content-center" id="breakCount">Breaks Taken: 0</p>
     </div>
-
-
-  <div class="modal fade" id="modalCreateTask" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Create Task</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            <form method="post" id="frmCreateTask">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="md-form">
-                            <input class="form-control form-control-md" type="text" name="task_title" id="task_title">
-                            <label class="text-dark" id="task_title">Title</label>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="md-form">
-                            <input class="form-control form-control-md" type="text" name="task_desc" id="task_desc">
-                            <label class="text-dark" for="task_desc">Description</label>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="md-form">
-                            <input placeholder="Selected date" type="text" name="task_date" id="task_date" class="form-control datepicker">
-                            <label for="task_date">Assigned Date</label>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="md-form">
-                            <input placeholder="Selected date" type="text" name="due_date" id="due_date" class="form-control datepicker">
-                            <label for="task_date">Due Date</label>
-                        </div>
-                    </div>
-                    <div class="col-md-12 d-none">
-                        <div class="md-form">
-                            <select class="mdb-select md-form" name="assign_by" id="assign_by">
-                                <option value="">Select Employee</option>
+    <button type="button" class="btn blue-gradient btn-rounded" data-toggle="modal" data-target="#modalCreateTask">
+        CREATE TASK
+    </button>
+    <?php
+        echo ($level=="1") ? '<button type="button" class="btn btn-info btn-rounded" data-toggle="modal" data-target="#modalAssignTask">
+        ASSIGN A TASK
+    </button>' : '';
+    ?>
+    <button class="btn btn-rounded text-white disabled" style="background-color: #43cea2;" id="breakButton">Take a Break</button>
+    <div class="row my-4">
+        <div class="col-md-12">
+            <section class="mx-2 pb-3">
+                <ul class="nav nav-tabs md-tabs" id="myTabMD" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="new-tab-md" data-toggle="tab" href="#new-md" role="tab" aria-controls="new-md"
+                        aria-selected="true">New Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="pending-tab-md" data-toggle="tab" href="#pending-md" role="tab" aria-controls="pending-md"
+                        aria-selected="true">Pending Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="ongoing-tab-md" data-toggle="tab" href="#ongoing-md" role="tab" aria-controls="ongoing-md"
+                        aria-selected="false">Ongoing Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="completed-tab-md" data-toggle="tab" href="#completed-md" role="tab" aria-controls="completed-md"
+                        aria-selected="false">Completed Tasks</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="onhold-tab-md" data-toggle="tab" href="#onhold-md" role="tab" aria-controls="onhold-md"
+                        aria-selected="false">Paused Tasks</a>
+                    </li>
+                </ul>
+                <div class="tab-content card pt-5" id="myTabContentMD">
+                    <div class="tab-pane fade show active" id="new-md" role="tabpanel" aria-labelledby="new-tab-md">
+                        <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksNew" style="width: 100%;" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr>
+                                    <?php
+                                        $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
+                                        foreach ($task_head as $task_val) {
+                                            echo "<th>".$task_val."</th>";
+                                        }
+                                    ?>
+                                </tr>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 <?php
-                                    $employees = retrieve("SELECT * FROM users ORDER BY firstname ASC",array());
-                                    for ($i=0; $i < COUNT($employees); $i++) { 
-                                        echo "<option value='".$employees[$i]['id']."'>".$employees[$i]['firstname']." ".$employees[$i]['lastname']."</option>";
-                                    }
+                                    $disp_task_new = retrieve("SELECT
+                                        CONCAT(users.firstname, ' ', users.lastname) AS name,
+                                            users.position AS position,
+                                            users.level AS level,
+                                            task.title AS title, 
+                                            task.id AS task_id, 
+                                            task.description AS description,
+                                            task.assign_by AS assign_by,
+                                            task.status AS status,
+                                            task.task_date AS task_date,
+                                            task.due_date AS due_date 
+                                            FROM task LEFT JOIN users ON task.user_id=users.id 
+                                            WHERE users.username=? AND status=?",array($login_username,"1"));
+                                        for ($i=0; $i < COUNT($disp_task_new); $i++) { 
+                                            echo "<tr>
+                                                    <td>".$disp_task_new[$i]['task_id']."</td>
+                                                    <td>".$disp_task_new[$i]['name']."</td>
+                                                    <td>".$disp_task_new[$i]['position']."</td>
+                                                    <td>".$disp_task_new[$i]['title']."</td>
+                                                    <td>
+                                                        <details>
+                                                            ".$disp_task_new[$i]['description']."
+                                                        </details>
+                                                    </td>
+                                                    <td>".$disp_task_new[$i]['assign_by']."</td>
+                                                    ".getTaskStatus($disp_task_new[$i]['status'])."
+                                                    <td>".date("F d, Y",strtotime($disp_task_new[$i]['task_date']))."</td>
+                                                    <td>".date("F d, Y", strtotime($disp_task_new[$i]['due_date']))."</td>
+                                                    <td>
+                                                        <a class='mr-1 move_to_pending_task' 
+                                                            data-task-id=".$disp_task_new[$i]['task_id']."
+                                                            data-current-status=".$disp_task_new[$i]['status'].">
+                                                            <span class='fas fa-arrow-alt-circle-right'></span>
+                                                        </a>
+                                                        <a class='mr-1 paused_task'
+                                                            data-task-id=".$disp_task_new[$i]['task_id']."
+                                                            data-current-status=".$disp_task_new[$i]['status']."
+                                                            >
+                                                            <span class='fas fa-pause-circle'></span>
+                                                        </a>
+                                                        <span class='mr-1 edit_task'
+                                                            edit_task_id='".$disp_task_new[$i]['task_id']."'
+                                                            edit_task_title='".$disp_task_new[$i]['title']."'
+                                                            edit_task_desc='".$disp_task_new[$i]['description']."'
+                                                            edit_task_date='".$disp_task_new[$i]['task_date']."'
+                                                            edit_task_due='".$disp_task_new[$i]['due_date']."'
+                                                            data-toggle='modal' data-target='#edit_task_modal'>
+                                                            <i class='fas fa-edit'></i>
+                                                        </span>
+                                                        <span class='mr-1 delete_task'
+                                                                delete_task_id='".$disp_task_new[$i]['task_id']."'
+                                                                data-toggle='modal'
+                                                                data-target='#delete_task_modal'>
+                                                            <i class='fa fa-trash'></i>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ";
+
+                                        }
                                 ?>
-                            </select>
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
-                    <button type="submit" class="btn btn-success ml-auto" name="add_task" id="add_task">Add</button>
+                    <div class="tab-pane fade" id="pending-md" role="tabpanel" aria-labelledby="pending-tab-md">
+                        <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksPending" width="100%" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr>
+                                    <?php
+                                        $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
+                                        foreach ($task_head as $task_val) {
+                                            echo "<th>".$task_val."</th>";
+                                        }
+                                    ?>
+                                </tr>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    $disp_tasks_pending = retrieve("SELECT
+                                        CONCAT(users.firstname, ' ', users.lastname) AS name,
+                                            users.position AS position,
+                                            users.level AS level,
+                                            task.title AS title,
+                                            task.id AS task_id,
+                                            task.description AS description,
+                                            task.assign_by AS assign_by,
+                                            task.status AS status,
+                                            task.task_date AS task_date,
+                                            task.due_date AS due_date 
+                                            FROM task LEFT JOIN users ON task.user_id=users.id 
+                                            WHERE users.username=? AND task.status=?",array($login_username,"2"));
+                                        for ($i=0; $i < COUNT($disp_tasks_pending); $i++) { 
+                                            echo "<tr>
+                                                    <td>".$disp_tasks_pending[$i]['task_id']."</td>
+                                                    <td>".$disp_tasks_pending[$i]['name']."</td>
+                                                    <td>".$disp_tasks_pending[$i]['position']."</td>
+                                                    <td>".$disp_tasks_pending[$i]['title']."</td>
+                                                    <td>
+                                                        <details>
+                                                            ".$disp_tasks_pending[$i]['description']."
+                                                        </details>
+                                                    </td>
+                                                    <td>".$disp_tasks_pending[$i]['assign_by']."</td>
+                                                    ".getTaskStatus($disp_tasks_pending[$i]['status'])."
+                                                    <td>".date("F d, Y",strtotime($disp_tasks_pending[$i]['task_date']))."</td>
+                                                    <td>".date("F d, Y", strtotime($disp_tasks_pending[$i]['due_date']))."</td>
+                                                    <td>
+                                                        <a class='mr-1 back_to_new_task'
+                                                            data-task-id=".$disp_tasks_pending[$i]['task_id']."
+                                                            data-current-status=".$disp_tasks_pending[$i]['status']."
+                                                        >
+                                                            <span class='fas fa-arrow-alt-circle-left'></span>
+                                                        </a>
+                                                        <a class='mr-1 move_to_ongoing_task'
+                                                            data-task-id=".$disp_tasks_pending[$i]['task_id']."
+                                                            data-current-status=".$disp_tasks_pending[$i]['status']."
+                                                        >
+                                                            <span class='fas fa-arrow-alt-circle-right'></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            ";
+
+                                        }
+                                ?>
+                            </tbody>
+                        </table> 
+                    </div>
+                    <div class="tab-pane fade" id="ongoing-md" role="tabpanel" aria-labelledby="ongoing-tab-md">
+                        <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksOngoing" width="100%" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr>
+                                    <?php
+                                        $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
+                                        foreach ($task_head as $task_val) {
+                                            echo "<th>".$task_val."</th>";
+                                        }
+                                    ?>
+                                </tr>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    $disp_tasks_ongoing = retrieve("SELECT
+                                        CONCAT(users.firstname, ' ', users.lastname) AS name,
+                                            users.position AS position,
+                                            users.level AS level,
+                                            task.title AS title,
+                                            task.id AS task_id,
+                                            task.description AS description,
+                                            task.assign_by AS assign_by,
+                                            task.status AS status,
+                                            task.task_date AS task_date,
+                                            task.due_date AS due_date 
+                                            FROM task LEFT JOIN users ON task.user_id=users.id 
+                                            WHERE users.username=? AND task.status=?",array($login_username,"3"));
+                                        for ($i=0; $i < COUNT($disp_tasks_ongoing); $i++) { 
+                                            echo "<tr>
+                                                    <td>".$disp_tasks_ongoing[$i]['task_id']."</td>
+                                                    <td>".$disp_tasks_ongoing[$i]['name']."</td>
+                                                    <td>".$disp_tasks_ongoing[$i]['position']."</td>
+                                                    <td>".$disp_tasks_ongoing[$i]['title']."</td>
+                                                    <td>
+                                                        <details>
+                                                            ".$disp_tasks_ongoing[$i]['description']."
+                                                        </details>
+                                                    </td>
+                                                    <td>".$disp_tasks_ongoing[$i]['assign_by']."</td>
+                                                    ".getTaskStatus($disp_tasks_ongoing[$i]['status'])."
+                                                    <td>".date("F d, Y",strtotime($disp_tasks_ongoing[$i]['task_date']))."</td>
+                                                    <td>".date("F d, Y", strtotime($disp_tasks_ongoing[$i]['due_date']))."</td>
+                                                    <td>
+                                                        <a class='mr-1 back_to_pending_task'
+                                                            data-task-id=".$disp_tasks_ongoing[$i]['task_id']."
+                                                            data-current-status=".$disp_tasks_ongoing[$i]['status']."
+                                                        >
+                                                            <span class='fas fa-arrow-alt-circle-left'></span>
+                                                        </a>
+                                                        <a class='mr-1 move_to_complete_task'
+                                                            data-task-id=".$disp_tasks_ongoing[$i]['task_id']."
+                                                            data-current-status=".$disp_tasks_ongoing[$i]['status']."
+                                                        >
+                                                            <span class='fas fa-arrow-alt-circle-right'></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            ";
+
+                                        }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="completed-md" role="tabpanel" aria-labelledby="completed-tab-md">
+                        <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksCompleted" width="100%" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr>
+                                    <?php
+                                        $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
+                                        foreach ($task_head as $task_val) {
+                                            echo "<th>".$task_val."</th>";
+                                        }
+                                    ?>
+                                </tr>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    $disp_tasks_complete = retrieve("SELECT
+                                        CONCAT(users.firstname, ' ', users.lastname) AS name,
+                                            users.position AS position,
+                                            users.level AS level,
+                                            task.title AS title,
+                                            task.id AS task_id,
+                                            task.description AS description,
+                                            task.assign_by AS assign_by,
+                                            task.status AS status,
+                                            task.task_date AS task_date,
+                                            task.due_date AS due_date 
+                                            FROM task LEFT JOIN users ON task.user_id=users.id 
+                                            WHERE users.username=? AND task.status=?",array($login_username,"4"));
+                                        for ($i=0; $i < COUNT($disp_tasks_complete); $i++) { 
+                                            echo "<tr>
+                                                    <td>".$disp_tasks_complete[$i]['task_id']."</td>
+                                                    <td>".$disp_tasks_complete[$i]['name']."</td>
+                                                    <td>".$disp_tasks_complete[$i]['position']."</td>
+                                                    <td>".$disp_tasks_complete[$i]['title']."</td>
+                                                    <td>
+                                                        <details>
+                                                            ".$disp_tasks_complete[$i]['description']."
+                                                        </details>
+                                                    </td>
+                                                    <td>".$disp_tasks_complete[$i]['assign_by']."</td>
+                                                    ".getTaskStatus($disp_tasks_complete[$i]['status'])."
+                                                    <td>".date("F d, Y",strtotime($disp_tasks_complete[$i]['task_date']))."</td>
+                                                    <td>".date("F d, Y", strtotime($disp_tasks_complete[$i]['due_date']))."</td>
+                                                    <td>
+                                                        <a class='mr-1 back_to_ongoing_task'
+                                                            data-task-id=".$disp_tasks_complete[$i]['task_id']."
+                                                            data-current-status=".$disp_tasks_complete[$i]['status']."
+                                                        >
+                                                            <span class='fas fa-arrow-alt-circle-left'></span>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            ";
+
+                                        }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="onhold-md" role="tabpanel" aria-labelledby="onhold-tab-md">
+                        <table class="table table-hoverable tabled-bordered table-sm text-center" id="tblTasksOnHold" width="100%" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr>
+                                    <?php
+                                        $task_head = explode(",","No,Name,Position,Title,Description,Assigned By,Status,Date Assigned,Due Date,Actions");
+                                        foreach ($task_head as $task_val) {
+                                            echo "<th>".$task_val."</th>";
+                                        }
+                                    ?>
+                                </tr>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    $disp_tasks_onhold = retrieve("SELECT
+                                        CONCAT(users.firstname, ' ', users.lastname) AS name,
+                                            users.position AS position,
+                                            users.level AS level,
+                                            task.title AS title,
+                                            task.id AS task_id,
+                                            task.description AS description,
+                                            task.assign_by AS assign_by,
+                                            task.status AS status,
+                                            task.task_date AS task_date,
+                                            task.due_date AS due_date 
+                                            FROM task LEFT JOIN users ON task.user_id=users.id 
+                                            WHERE users.username=? AND task.status=?",array($login_username,"5"));
+                                        for ($i=0; $i < COUNT($disp_tasks_onhold); $i++) { 
+                                            echo "<tr>
+                                                    <td>".$disp_tasks_onhold[$i]['task_id']."</td>
+                                                    <td>".$disp_tasks_onhold[$i]['name']."</td>
+                                                    <td>".$disp_tasks_onhold[$i]['position']."</td>
+                                                    <td>".$disp_tasks_onhold[$i]['title']."</td>
+                                                    <td>
+                                                        <details>
+                                                            ".$disp_tasks_onhold[$i]['description']."
+                                                        </details>
+                                                    </td>
+                                                    <td>".$disp_tasks_onhold[$i]['assign_by']."</td>
+                                                    ".getTaskStatus($disp_tasks_onhold[$i]['status'])."
+                                                    <td>".date("F d, Y",strtotime($disp_tasks_onhold[$i]['task_date']))."</td>
+                                                    <td>".date("F d, Y", strtotime($disp_tasks_onhold[$i]['due_date']))."</td>
+                                                    <td>
+                                                        <a class='mr-1 move_task'><span class='fas fa-arrow-alt-circle-right'></span></a>
+                                                        <span class='mr-1 edit_task'
+                                                            data-toggle='modal' data-target='#edit_task_modal'>
+                                                            <i class='fas fa-edit'></i>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ";
+
+                                        }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </form>
+            </section>
         </div>
-      </div>
     </div>
-  </div>
+</div>
+
+<?php include('includes/modal.php'); ?>  
 <?php include('includes/footer.php'); ?>
 <script>
 $(document).ready(function(){
 
     $('.datepicker').pickadate();
+
+    $(".delete_task").click(function(){
+        $("#delete_task_id").val($(this).attr("delete_task_id"));
+        $("#delete_task_modal").modal("show");
+    });
+
+    $(".edit_task").click(function(){
+        $("#edit_task_id").val($(this).attr("edit_task_id"));
+        $("#edit_task_title").val($(this).attr("edit_task_title"));
+        $("#edit_task_desc").val($(this).attr("edit_task_desc"));
+        $("#edit_task_date").val($(this).attr("edit_task_date"));
+        $("#edit_task_due").val($(this).attr("edit_task_due"));
+        $("#edit_task_modal").modal("show");
+    });
 
     $('.mdb-select').materialSelect();
     $("#tblTasksNew").DataTable({
@@ -433,8 +406,8 @@ $(document).ready(function(){
         "lengthChange": true,
         "paging": true,
         "searching": true,
-        "pageLength":10,
-        "order": [],
+        "pageLength":15,
+        "order": [[0, "asc"]],
     });
     $("#tblTasksPending").DataTable({
         "scrollX": true,
@@ -442,8 +415,8 @@ $(document).ready(function(){
         "lengthChange": true,
         "paging": true,
         "searching": true,
-        "pageLength":10,
-        "order": [],
+        "pageLength":15,
+        "order": [[0, "asc"]],
     });
     $("#tblTasksOngoing").DataTable({
         "scrollX": true,
@@ -451,8 +424,8 @@ $(document).ready(function(){
         "lengthChange": true,
         "paging": true,
         "searching": true,
-        "pageLength":10,
-        "order": [],
+        "pageLength":15,
+        "order": [[0, "asc"]],
     });
     $("#tblTasksCompleted").DataTable({
         "scrollX": true,
@@ -460,8 +433,8 @@ $(document).ready(function(){
         "lengthChange": true,
         "paging": true,
         "searching": true,
-        "pageLength":10,
-        "order": [],
+        "pageLength":15,
+        "order": [[0, "asc"]],
     });
     $("#tblTasksOnHold").DataTable({
         "scrollX": true,
@@ -469,8 +442,8 @@ $(document).ready(function(){
         "lengthChange": true,
         "paging": true,
         "searching": true,
-        "pageLength":10,
-        "order": [],
+        "pageLength":15,
+        "order": [[0, "asc"]],
     });
 });
 </script>
