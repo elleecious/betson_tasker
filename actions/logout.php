@@ -2,11 +2,13 @@
 include('../includes/connect.php');
 session_start();
 
-if (isset($_SESSION['login_username'])) {
-    $login_username = $_SESSION['login_username'];
+if (isset($_SESSION['login_id'])) {
+    $login_id = $_SESSION['login_id'];
 } else {
-    $login_username = "Unknown";
+    $login_id = "Unknown";
 }
+
+$get_username = retrieve("SELECT * FROM users WHERE id=?",array($login_id));
 
 $_SESSION = array();
 
@@ -19,16 +21,15 @@ if (ini_get("session.use_cookies")) {
     array(
         gethostbyaddr($_SERVER['REMOTE_ADDR']),
         $ip_address_2,
-        "NONE",
+        "HOME",
         "LOGOUT",
         "<details>
             <p>User Logout</p>
-            <p>Username: " . $login_username . "</p>
+            <p>Username: " . $get_username[0]['username'] . "</p>
         </details>",
         date("Y-m-d H:i:s a")
     ));
 
-    // Clear the session cookie
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,
         $params["path"], $params["domain"], $params["secure"], $params["httponly"]

@@ -10,8 +10,8 @@
     }
 
     function getTaskStatus($status){
-        $status_sql = retrieve("SELECT * FROM task WHERE status=?",array($status));
-        switch ($status_sql[0]['status']) {
+        $status_sql = retrieve("SELECT * FROM task WHERE task_status=?",array($status));
+        switch ($status_sql[0]['task_status']) {
             case 1:
                 $status_name = "New";
                 $color = "bg-info";
