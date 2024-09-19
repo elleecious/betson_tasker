@@ -4,6 +4,9 @@ ini_set('log_errors', 1);
 ini_set('error_log', 'C:/xampp/php/logs/php_error_log.txt');
 error_reporting(E_ALL);
 
+// Set timezone
+date_default_timezone_set("Asia/Manila");
+
 // Define database connection variables
 $dbhost = "localhost";
 $dbname = "betson_tasker";
@@ -15,9 +18,6 @@ try {
     $pdo = new PDO("mysql:host=$dbhost;dbname=$dbname", $dbusername, $dbpassword);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Enable exceptions for errors
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-
-    // Set timezone
-    date_default_timezone_set("Asia/Manila");
 
 } catch (PDOException $e) {
     // Handle connection error

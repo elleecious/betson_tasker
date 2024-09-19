@@ -36,7 +36,7 @@
                             <div class="col-md-6">
                                 <div class="md-form">
                                     <select class="mdb-select md-form" name="level" id="level">
-                                        <option value="">Select Tean</option>
+                                        <option value="">Select Team</option>
                                         <option value="1">Executive</option>
                                         <option value="2">Admin</option>
                                         <option value="3">Leadership</option>

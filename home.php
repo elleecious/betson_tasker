@@ -8,8 +8,8 @@
     <h6><?php echo $position; ?></h6>
     <div class="jumbotron">
         <h4 class="display-4 d-flex justify-content-center" id="status"></h4>
-        <h4 class="d-flex justify-content-center font-weight-bold" id="timer"></h4>
-        <p class="d-flex justify-content-center" id="breakCount">Breaks Taken: 0</p>
+        <h4 class="d-flex justify-content-center font-weight-bold d-none" id="timer">00:00</h4>
+        <!-- <p class="d-flex justify-content-center" id="breakCount">Breaks Taken: 0</p> -->
     </div>
     <button type="button" class="btn blue-gradient btn-rounded" data-toggle="modal" data-target="#modalCreateTask">
         CREATE TASK
@@ -19,7 +19,9 @@
         ASSIGN A TASK
     </button>' : '';
     ?>
-    <button class="btn btn-rounded text-white disabled" style="background-color: #43cea2;" id="breakButton">Take a Break</button>
+    <button class="btn btn-rounded text-white" style="background-color: #43cea2;" id="breakButton">Take a Break</button>
+    <button class="btn btn-rounded text-white" style="background-color: #FF5733;" id="endBreakButton">End Break</button>
+
     <div class="row my-4">
         <div class="col-md-12">
             <section class="mx-2 pb-3">
@@ -69,11 +71,11 @@
                                             task.id AS task_id, 
                                             task.description AS description,
                                             task.assign_by AS assign_by,
-                                            task.status AS status,
+                                            task.task_status AS task_status,
                                             task.task_date AS task_date,
                                             task.due_date AS due_date 
                                             FROM task LEFT JOIN users ON task.user_id=users.id 
-                                            WHERE users.username=? AND status=?",array($login_username,"1"));
+                                            WHERE users.id=? AND task.task_status=?",array($login_id,"1"));
                                         for ($i=0; $i < COUNT($disp_task_new); $i++) { 
                                             echo "<tr>
                                                     <td>".$disp_task_new[$i]['task_id']."</td>
@@ -86,18 +88,18 @@
                                                         </details>
                                                     </td>
                                                     <td>".$disp_task_new[$i]['assign_by']."</td>
-                                                    ".getTaskStatus($disp_task_new[$i]['status'])."
+                                                    ".getTaskStatus($disp_task_new[$i]['task_status'])."
                                                     <td>".date("F d, Y",strtotime($disp_task_new[$i]['task_date']))."</td>
                                                     <td>".date("F d, Y", strtotime($disp_task_new[$i]['due_date']))."</td>
                                                     <td>
                                                         <a class='mr-1 move_to_pending_task' 
                                                             data-task-id=".$disp_task_new[$i]['task_id']."
-                                                            data-current-status=".$disp_task_new[$i]['status'].">
+                                                            data-current-status=".$disp_task_new[$i]['task_status'].">
                                                             <span class='fas fa-arrow-alt-circle-right'></span>
                                                         </a>
                                                         <a class='mr-1 paused_task'
                                                             data-task-id=".$disp_task_new[$i]['task_id']."
-                                                            data-current-status=".$disp_task_new[$i]['status']."
+                                                            data-current-status=".$disp_task_new[$i]['task_status']."
                                                             >
                                                             <span class='fas fa-pause-circle'></span>
                                                         </a>
@@ -148,11 +150,11 @@
                                             task.id AS task_id,
                                             task.description AS description,
                                             task.assign_by AS assign_by,
-                                            task.status AS status,
+                                            task.task_status AS task_status,
                                             task.task_date AS task_date,
                                             task.due_date AS due_date 
                                             FROM task LEFT JOIN users ON task.user_id=users.id 
-                                            WHERE users.username=? AND task.status=?",array($login_username,"2"));
+                                            WHERE users.id=? AND task.task_status=?",array($login_id,"2"));
                                         for ($i=0; $i < COUNT($disp_tasks_pending); $i++) { 
                                             echo "<tr>
                                                     <td>".$disp_tasks_pending[$i]['task_id']."</td>
@@ -165,19 +167,19 @@
                                                         </details>
                                                     </td>
                                                     <td>".$disp_tasks_pending[$i]['assign_by']."</td>
-                                                    ".getTaskStatus($disp_tasks_pending[$i]['status'])."
+                                                    ".getTaskStatus($disp_tasks_pending[$i]['task_status'])."
                                                     <td>".date("F d, Y",strtotime($disp_tasks_pending[$i]['task_date']))."</td>
                                                     <td>".date("F d, Y", strtotime($disp_tasks_pending[$i]['due_date']))."</td>
                                                     <td>
                                                         <a class='mr-1 back_to_new_task'
                                                             data-task-id=".$disp_tasks_pending[$i]['task_id']."
-                                                            data-current-status=".$disp_tasks_pending[$i]['status']."
+                                                            data-current-status=".$disp_tasks_pending[$i]['task_status']."
                                                         >
                                                             <span class='fas fa-arrow-alt-circle-left'></span>
                                                         </a>
                                                         <a class='mr-1 move_to_ongoing_task'
                                                             data-task-id=".$disp_tasks_pending[$i]['task_id']."
-                                                            data-current-status=".$disp_tasks_pending[$i]['status']."
+                                                            data-current-status=".$disp_tasks_pending[$i]['task_status']."
                                                         >
                                                             <span class='fas fa-arrow-alt-circle-right'></span>
                                                         </a>
@@ -213,11 +215,11 @@
                                             task.id AS task_id,
                                             task.description AS description,
                                             task.assign_by AS assign_by,
-                                            task.status AS status,
+                                            task.task_status AS task_status,
                                             task.task_date AS task_date,
                                             task.due_date AS due_date 
                                             FROM task LEFT JOIN users ON task.user_id=users.id 
-                                            WHERE users.username=? AND task.status=?",array($login_username,"3"));
+                                            WHERE users.id=? AND task.task_status=?",array($login_id,"3"));
                                         for ($i=0; $i < COUNT($disp_tasks_ongoing); $i++) { 
                                             echo "<tr>
                                                     <td>".$disp_tasks_ongoing[$i]['task_id']."</td>
@@ -236,13 +238,13 @@
                                                     <td>
                                                         <a class='mr-1 back_to_pending_task'
                                                             data-task-id=".$disp_tasks_ongoing[$i]['task_id']."
-                                                            data-current-status=".$disp_tasks_ongoing[$i]['status']."
+                                                            data-current-status=".$disp_tasks_ongoing[$i]['task_status']."
                                                         >
                                                             <span class='fas fa-arrow-alt-circle-left'></span>
                                                         </a>
                                                         <a class='mr-1 move_to_complete_task'
                                                             data-task-id=".$disp_tasks_ongoing[$i]['task_id']."
-                                                            data-current-status=".$disp_tasks_ongoing[$i]['status']."
+                                                            data-current-status=".$disp_tasks_ongoing[$i]['task_status']."
                                                         >
                                                             <span class='fas fa-arrow-alt-circle-right'></span>
                                                         </a>
@@ -278,11 +280,11 @@
                                             task.id AS task_id,
                                             task.description AS description,
                                             task.assign_by AS assign_by,
-                                            task.status AS status,
+                                            task.task_status AS task_status,
                                             task.task_date AS task_date,
                                             task.due_date AS due_date 
                                             FROM task LEFT JOIN users ON task.user_id=users.id 
-                                            WHERE users.username=? AND task.status=?",array($login_username,"4"));
+                                            WHERE users.id=? AND task.task_status=?",array($login_id,"4"));
                                         for ($i=0; $i < COUNT($disp_tasks_complete); $i++) { 
                                             echo "<tr>
                                                     <td>".$disp_tasks_complete[$i]['task_id']."</td>
@@ -295,13 +297,13 @@
                                                         </details>
                                                     </td>
                                                     <td>".$disp_tasks_complete[$i]['assign_by']."</td>
-                                                    ".getTaskStatus($disp_tasks_complete[$i]['status'])."
+                                                    ".getTaskStatus($disp_tasks_complete[$i]['task_status'])."
                                                     <td>".date("F d, Y",strtotime($disp_tasks_complete[$i]['task_date']))."</td>
                                                     <td>".date("F d, Y", strtotime($disp_tasks_complete[$i]['due_date']))."</td>
                                                     <td>
                                                         <a class='mr-1 back_to_ongoing_task'
                                                             data-task-id=".$disp_tasks_complete[$i]['task_id']."
-                                                            data-current-status=".$disp_tasks_complete[$i]['status']."
+                                                            data-current-status=".$disp_tasks_complete[$i]['task_status']."
                                                         >
                                                             <span class='fas fa-arrow-alt-circle-left'></span>
                                                         </a>
@@ -337,11 +339,11 @@
                                             task.id AS task_id,
                                             task.description AS description,
                                             task.assign_by AS assign_by,
-                                            task.status AS status,
+                                            task.task_status AS task_status,
                                             task.task_date AS task_date,
                                             task.due_date AS due_date 
                                             FROM task LEFT JOIN users ON task.user_id=users.id 
-                                            WHERE users.username=? AND task.status=?",array($login_username,"5"));
+                                            WHERE users.id=? AND task.task_status=?",array($login_id,"6"));
                                         for ($i=0; $i < COUNT($disp_tasks_onhold); $i++) { 
                                             echo "<tr>
                                                     <td>".$disp_tasks_onhold[$i]['task_id']."</td>
@@ -354,15 +356,16 @@
                                                         </details>
                                                     </td>
                                                     <td>".$disp_tasks_onhold[$i]['assign_by']."</td>
-                                                    ".getTaskStatus($disp_tasks_onhold[$i]['status'])."
+                                                    ".getTaskStatus($disp_tasks_onhold[$i]['task_status'])."
                                                     <td>".date("F d, Y",strtotime($disp_tasks_onhold[$i]['task_date']))."</td>
                                                     <td>".date("F d, Y", strtotime($disp_tasks_onhold[$i]['due_date']))."</td>
                                                     <td>
-                                                        <a class='mr-1 move_task'><span class='fas fa-arrow-alt-circle-right'></span></a>
-                                                        <span class='mr-1 edit_task'
-                                                            data-toggle='modal' data-target='#edit_task_modal'>
-                                                            <i class='fas fa-edit'></i>
-                                                        </span>
+                                                        <a class='mr-1 back_to_complete_task'
+                                                            data-task-id=".$disp_tasks_onhold[$i]['task_id']."
+                                                            data-current-status=".$disp_tasks_onhold[$i]['task_status']."
+                                                        >
+                                                            <span class='fas fa-arrow-alt-circle-left'></span>
+                                                        </a>
                                                     </td>
                                                 </tr>
                                             ";

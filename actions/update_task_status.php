@@ -18,7 +18,7 @@ if ($direction === 'forward') {
     $new_status = 5;
 }
 
-$update_task_sql = manage("UPDATE task SET status = ? WHERE id = ?",array($new_status, $task_id));
+$update_task_sql = manage("UPDATE task SET task_status = ? WHERE id = ?",array($new_status, $task_id));
 
 if ($update_task_sql) {
     $response = array('status' => 'success', 'message' => 'Task moved successfully');

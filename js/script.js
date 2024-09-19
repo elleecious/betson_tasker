@@ -1,116 +1,206 @@
 $(document).ready(function() {
-
-    var now = new Date();
-    var year = now.getFullYear();
-    var month = String(now.getMonth() + 1).padStart(2, '0');
-    var day = String(now.getDate()).padStart(2, '0');
-    var currentDate = `${year}-${month}-${day}`;
     
+    // let timerInterval;
+    // let breakTimeLeft = localStorage.getItem('remainingBreakTime') ? parseInt(localStorage.getItem('remainingBreakTime')) : 3600;
+    var breakTimeLeft = 3600; // Default 1 hour in seconds
     var timerInterval;
-    var breakCount = parseInt(localStorage.getItem('breakCount')) || 0;
-    var startTime = parseInt(localStorage.getItem('startTime')) || null;
-    var timeLeft = parseInt(localStorage.getItem('timeLeft')) || 10 * 60;
-    var isOnBreak = localStorage.getItem('isOnBreak') === 'true';
 
-    $('#breakCount').text('Breaks Taken: ' + breakCount);
+    function updateTimerDisplay(timeLeft) {
+        var minutes = Math.floor(timeLeft / 60);
+        var seconds = timeLeft % 60;
+    
+        $('#timer').text(minutes + ":" + (seconds < 10 ? '0' : '') + seconds);
+    }
+    
+    
 
-    function updateTimerDisplay(seconds) {
-        var minutes = Math.floor(seconds / 60);
-        var remainingSeconds = seconds % 60;
-        minutes = minutes < 10 ? '0' + minutes : minutes;
-        remainingSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
-        $('#timer').text(minutes + ':' + remainingSeconds);
+    if (localStorage.getItem('remainingBreakTime')) {
+        breakTimeLeft = parseInt(localStorage.getItem('remainingBreakTime'), 10);
+        updateTimerDisplay(breakTimeLeft);
+        startBreakTimer();
     }
 
-    // var sessionUsername = sessionStorage.getItem("username");
-    // if (sessionUsername) {
-    //     $("#displayUsername").text(sessionUsername);
-    // }
-
-    function startTimer(duration, isLunchBreak = false) {
-        clearInterval(timerInterval);
+    function startBreakTimer(initialTime) {
+        if (initialTime) {
+            breakTimeLeft = initialTime;
+        }
+    
         timerInterval = setInterval(function() {
-            if (timeLeft <= 0) {
+            if (breakTimeLeft <= 0) {
                 clearInterval(timerInterval);
-                localStorage.removeItem('startTime');
-                localStorage.removeItem('timeLeft');
-                localStorage.removeItem('isOnBreak');
-                $('#status').text(isLunchBreak ? 'Status: Lunch break is over, please get back to work' : 'Status: Your break is over, please get back to work');
-                $('#timer').text('00:00');
-                $('#breakButton').prop('disabled', false);
+                $('#status').text('Status: No Break Time Left');
+                $('#breakButton').prop('disabled', true);
+                $('#endBreakButton').hide();
                 return;
             }
-            timeLeft--;
-            localStorage.setItem('timeLeft', timeLeft);
-            updateTimerDisplay(timeLeft);
+            
+            breakTimeLeft--;
+            updateTimerDisplay(breakTimeLeft);
+            localStorage.setItem('breakTimeLeft', breakTimeLeft);
         }, 1000);
     }
+    
 
-    function resetBreakCountIfNeeded() {
-        var now = new Date();
-        var currentTime = now.getHours() * 60 + now.getMinutes();
-        var lastResetDate = localStorage.getItem('lastResetDate');
-        var currentDate = now.toISOString().split('T')[0];
+    $("#breakButton").click(function() {
+        $.ajax({
+            url: './actions/update_break_status.php',
+            method: 'POST',
+            data: { action: 'start_break' },
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire('Success', response.message, 'success');
+                    $('#status').text('Status: On Break');
+                    $('#breakButton').hide();
+                    $('#endBreakButton').show();
 
-        var shiftStartTime = 21 * 60;
-        var shiftEndTime = 7 * 60;
+                    let savedBreakTime = localStorage.getItem('breakTimeLeft');
+                    if (savedBreakTime !== null && savedBreakTime > 0) {
+                        breakTimeLeft = parseInt(savedBreakTime, 10);
+                    } else {
+                        breakTimeLeft = 3600;
+                    }
 
-        if (currentTime >= shiftEndTime && currentTime < shiftStartTime && currentDate !== lastResetDate && breakCount > 0) {
-            breakCount = 0;
-            localStorage.setItem('breakCount', breakCount);
-            $('#breakCount').text('Breaks Taken: ' + breakCount);
-            localStorage.setItem('lastResetDate', currentDate);
-        }
-    }
-
-    function handleLunchBreak() {
-        var now = new Date();
-        var currentTime = now.getHours() * 60 + now.getMinutes();
-        var lunchStart = 1 * 60;
-        var lunchEnd = 2 * 60;
-
-        if (currentTime >= lunchStart && currentTime < lunchEnd) {
-            $('#breakButton').prop('disabled', true);
-            $('#status').text('Status: On Lunch Break');
-            timeLeft = lunchEnd - currentTime;
-            startTimer(timeLeft * 60, true);
-            localStorage.setItem('isOnBreak', true);
-        }
-    }
-
-    if (isOnBreak && startTime) {
-        var currentTime = Math.floor(Date.now() / 1000);
-        var elapsedTime = currentTime - startTime;
-        timeLeft -= elapsedTime;
-        if (timeLeft > 0) {
-            $('#breakButton').prop('disabled', true);
-            $('#status').text('Status: On Break');
-            startTimer(timeLeft);
-        } else {
-            localStorage.removeItem('startTime');
-            localStorage.removeItem('timeLeft');
-            localStorage.removeItem('isOnBreak');
-        }
-    }
-
-
-    resetBreakCountIfNeeded();
-    handleLunchBreak();
-
-    $('#breakButton').click(function() {
-        $('#breakButton').prop('disabled', true);
-        $('#status').text('Status: On Break');
-        breakCount++;
-        $('#breakCount').text('Breaks Taken: ' + breakCount);
-        localStorage.setItem('breakCount', breakCount);
-
-        timeLeft = 10 * 60;
-        startTime = Math.floor(Date.now() / 1000);
-        localStorage.setItem('startTime', startTime);
-        localStorage.setItem('timeLeft', timeLeft);
-        localStorage.setItem('isOnBreak', true);
-        startTimer(timeLeft); // No need to pass true, this is not a lunch break
+                    startBreakTimer(breakTimeLeft);
+                    getRemainingBreakTime();
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function() {
+                Swal.fire('Error', 'An error occurred. Please try again.', 'error');
+            }
+        });
     });
+    
+    $("#endBreakButton").click(function() {
+
+        clearInterval(timerInterval);
+        localStorage.setItem('breakTimeLeft', breakTimeLeft);
+
+        $.ajax({
+            url: './actions/update_break_status.php',
+            method: 'POST',
+            data: { action: 'end_break' },
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire('Break Ended', 'Your short break has ended successfully. Please back to work', 'success');
+                    $('#status').text('Status: Back to Work');
+                    $('#breakButton').show();
+                    $('#endBreakButton').hide();
+                    updateTimerDisplay(breakTimeLeft)
+                    //localStorage.setItem('remainingBreakTime', breakTimeLeft);
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function() {
+                Swal.fire('Error', 'An error occurred while ending the break.', 'error');
+            }
+        });
+    });
+
+    function getRemainingBreakTime() {
+        $.ajax({
+            url: './actions/get_remaining_break_time.php',
+            method: 'GET',
+            success: function(response) {
+                if (response.status === 'success') {
+                    let timeRemaining = response.time_remaining;
+                    updateTimerDisplay(timeRemaining);
+                    startBreakTimer();
+                } else {
+                    console.error(response.message);
+                }
+            },
+            error: function() {
+                console.error('Failed to retrieve break time.');
+            }
+        });
+    }
+    
+    
+
+    function updateBreaks() {
+        $.ajax({
+            url: './actions/display_breaks.php',
+            method: 'GET',
+            success: function(response) {
+                if (response.status === 'success') {
+                    var employeeList = '';
+                    var onBreak = false;
+
+                    response.employees.forEach(function(employee) {
+                        if (employee.break_start) {
+                            var breakStart = new Date(employee.break_start);
+                            var now = new Date();
+                            var interval = Math.floor((now - breakStart) / 1000);
+                            var breakDuration = 3600;
+                            var timeLeft = breakDuration - interval;
+                            
+                            if (timeLeft >= 0) {
+                                var minutes = Math.floor(timeLeft / 60);
+                                var seconds = timeLeft % 60;
+                                employeeList += "<div class='col-12 col-sm-6 col-md-4 col-lg-2 mt-2'>" +
+                                                "<div class='p-3 text-white bg-warning'>" +
+                                                    "<h3>ON BREAK</h3>" +
+                                                    "<hr class='divider'>" +
+                                                    "<h5>" + employee.firstname + " " + employee.lastname + "</h5>" +
+                                                    "<div>" + minutes + ":" + (seconds < 10 ? '0' : '') + seconds + "</div>" +
+                                                "</div>" +
+                                                "</div>";
+                                onBreak = true;
+                            }
+                        }
+                    });
+
+                    if (!onBreak) {
+                        employeeList += `
+                            <div class='col-12 mt-2'>
+                                <div class='jumbotron bg-primary text-white p-5'>
+                                    <h3 class='display-4'>THEY ARE ALL WORKING</h3>
+                                </div>
+                            </div>`;
+                    }
+        
+                    $('#employee_list').html(employeeList);
+                } else {
+                    console.log(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("AJAX error:", status, error);
+            }
+        });
+    }
+        
+    setInterval(updateBreaks, 1000);
+    
+    
+    $.ajax({
+        url: './actions/check_break_status.php',
+        method: 'GET',
+        cache:false,
+        success: function(response) {
+            if (response.status === 'on_break') {
+                $('#breakButton').hide();
+                $('#status').text('Status: On Break');
+                $('#endBreakButton').show();
+                if (data.time_remaining) {
+                    startBreakTimer(response.time_remaining);
+                }
+            } else {
+                $('#status').text('Status: Working');
+                $('#breakButton').show();
+                $('#endBreakButton').hide();
+            }
+        },
+        error: function(error) {
+            console.error('Failed to check break status.', error);
+        }
+    });
+    
+    
+    
 
 
     //Login
@@ -130,15 +220,15 @@ $(document).ready(function() {
                 Swal.fire({
                     title: response.status === 'success' ? 'Success!' : 'Error!',
                     text: response.message,
-                    icon: response.status,
+                    icon: response.status === 'success' ? 'success' : 'error',
                     confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                }).then(() => {
+                    if (response.status === 'success') {
                         window.location.href = "home.php";
                     }
                 })
             },
-            error: function(xhr, status, error) {
+            error: function(error) {
                 Swal.fire({
                     title: 'Error!',
                     text: 'An error occurred: ' + error,
@@ -346,6 +436,13 @@ $(document).ready(function() {
         updateTaskStatus(taskId, currentStatus, 'forward');
     });
 
+    $(".back_to_complete_task").click(function() {
+        var taskId = $(this).attr("data-task-id");
+        var currentStatus = $(this).attr("data-current-status");
+        
+        updateTaskStatus(taskId, currentStatus, 'backward');
+    });
+
     $(".paused_task").click(function() {
         var taskId = $(this).attr("data-task-id");
         var currentStatus = $(this).attr("data-current-status");
@@ -394,9 +491,6 @@ $(document).ready(function() {
              }
         });
     }
-
-    
-    
     
     $("#nightMode").click(function(){
 		$("body").toggleClass('bg-dark text-white');

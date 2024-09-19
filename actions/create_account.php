@@ -51,7 +51,7 @@ if ($prev_dup_username_sql && $prev_dup_username_sql[0]['username_exist'] > 0) {
                         Last Name: ".$lastname."<br>
                         First Name: ".$firstname."<br>
                         Position: ".$position."<br>
-                        Level: ".$level."<br>
+                        Team: ".$level."<br>
                         Username: ".$username."<br>
                         Date Created: ".$created_at."
                     </p>
