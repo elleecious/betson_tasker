@@ -12,17 +12,17 @@
             $name = $user['firstname'] . " " . $user['lastname'];
             $position = $user['position'];
             $level = $user['level'];
+            $username=$user['username'];
 
-            echo "Success";
         } else {
-            // Handle case where user is not found
             $name = $position = $level = 'Unknown';
-            echo "Unknown";
         }
     } else {
-        // Handle case where session ID is not set
         $name = $position = $level = 'Not logged in';
-        echo "Not logged in";
+    }
+
+    if (!isset($_SESSION['login_id'])) {
+        header("location: index.php");
     }
     
 ?>

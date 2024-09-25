@@ -1,44 +1,32 @@
 <?php
 
-ini_set('log_errors', 1);
-ini_set('error_log', 'C:/xampp/php/logs/php_error_log.txt');
-error_reporting(E_ALL);
+    ini_set('log_errors', 1);
+    ini_set('error_log', 'C:/xampp/php/logs/php_error_log.txt');
+    error_reporting(E_ALL);
 
-include('../includes/connect.php');
-include('../includes/session.php');
+    include('../includes/connect.php');
 
-header('Content-Type: application/json');
-$response = array('status' => 'error', 'message' => 'User not found or no break found.');
+    session_start();
+    $login_id = $_SESSION['login_id'];
+
+    header('Content-Type: application/json');
+    $response = array('status' => 'error', 'message' => 'User not found or no break found.');
 
 
-$break_result = retrieve("SELECT u.status, b.break_start 
-    FROM users u LEFT JOIN breaks b ON u.id = b.user_id AND b.break_end IS NULL 
-    WHERE u.id=?", array($login_id));
+    $break_info = retrieve("SELECT break_time FROM breaks WHERE user_id=? AND break_end IS NULL",array($login_id));
 
-if ($break_result && count($break_result) > 0) {
-    
-    if ($break_result[0]['status'] === "on_break") {
-        $breakStart = new DateTime($break_result[0]['break_start']);
-        $now = new DateTime();
-        $interval = $breakStart->diff($now);
-        $secondsElapsed = $interval->s + ($interval->i * 60) + ($interval->h * 3600);
-        $timeRemaining = max(0, 3600 - $secondsElapsed);
-
+    if ($break_info) {
         $response = array(
             'status' => 'on_break',
-            'time_remaining' => $timeRemaining
+            'break_time' => $break_info[0]['break_time'];
         );
     } else {
         $response = array(
             'status' => 'working',
+            'message' => 'Working Mode'
         );
     }
-} else {
-    $response = array(
-        'status' => 'error',
-        'message' => 'User not found or no break found.'
-    );
-}
+    
+    echo json_encode($response);
 
-echo json_encode($response);
 ?>

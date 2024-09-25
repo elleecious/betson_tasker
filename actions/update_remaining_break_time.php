@@ -5,7 +5,8 @@ ini_set('error_log', 'C:/xampp/php/logs/php_error_log.txt');
 error_reporting(E_ALL);
 
 include('../includes/connect.php');
-include('../includes/session.php');
+session_start();
+$login_id = $_SESSION['login_id'];
 
 header('Content-Type: application/json');
 
