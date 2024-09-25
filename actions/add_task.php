@@ -35,8 +35,8 @@ $logs_result = manage(
         $ip_address_2,              
         "HOME",
         "CREATE",         
-        "<details>
-            <p>Create Task</p>
+            "<details>
+                <p>Create Task</p>
                 <p>
                     Name: ".$name."
                     Task Title: ".$task_title."<br>

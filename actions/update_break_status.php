@@ -5,24 +5,28 @@ ini_set('error_log', 'C:/xampp/php/logs/php_error_log.txt');
 error_reporting(E_ALL);
 
 include('../includes/connect.php');
-include('../includes/session.php');
+
+session_start();
+$login_id = $_SESSION['login_id'];
 
 header('Content-Type: application/json');
-$response = array('status' => 'error', 'message' => 'Invalid request.');
+$response = array('status' => 'error', 'message' => 'Invalid request to break');
 
 $action = isset($_POST['action']) ? $_POST['action'] : '';
 $start_time = date('Y-m-d H:i:s');
 $break_end = date('Y-m-d H:i:s');
+$break_time = isset($_POST['break_time']) ? $_POST['break_time'] : 0;  
+
 
 if ($action == 'start_break') {
 
-    $insert_break = manage("INSERT INTO breaks (user_id, break_type, break_start) VALUES (?, ?, ?)",
-        array($login_id, 'short', $start_time)
+    $insert_break = manage("INSERT INTO breaks (user_id, break_type, break_time, break_start) VALUES (?, ?, ?, ?)",
+        array($login_id, 'short', $break_time, $start_time)
     );
 
     if ($insert_break) {
         
-        $update_status = manage("UPDATE users SET status = ? WHERE id = ?",array('on_break', $login_id));
+        $update_status = manage("UPDATE users SET status = ? WHERE id = ?", array('on_break', $login_id));
 
         if ($update_status) {
             $response = array('status' => 'success', 'message' => 'Break started successfully.');
@@ -35,15 +39,12 @@ if ($action == 'start_break') {
 
 } else if ($action == 'end_break') {
 
-    $update_break = manage("UPDATE breaks SET break_end = ? WHERE user_id = ? AND break_end IS NULL",
-        array($break_end, $login_id)
+    $update_break = manage("UPDATE breaks SET break_end = ?, break_time = ? WHERE user_id = ? AND break_end IS NULL",
+        array($break_end, $break_time, $login_id)
     );
 
     if ($update_break) {
-        $update_status = manage(
-            "UPDATE users SET status = ? WHERE id = ?",
-            array('active', $login_id)
-        );
+        $update_status = manage("UPDATE users SET status = ? WHERE id = ?", array('active', $login_id));
 
         if ($update_status) {
             $response = array('status' => 'success', 'message' => 'Break ended successfully.');
@@ -56,6 +57,5 @@ if ($action == 'start_break') {
 }
 
 echo json_encode($response);
-
 
 ?>

@@ -1,16 +1,27 @@
 <?php include('includes/header.php'); ?>
 <?php include('includes/session.php') ?>
 <?php include('library/functions.php'); ?>
-<?php $page_title="Betson Tasker"; ?>
+<?php 
+    $page_title="Betson Tasker"; 
+    if (!isset($_SESSION['login_id'])) {
+        header('Location: index.php');
+    }
+
+?>
 <?php include('includes/navbar.php'); ?>
 <div class="container py-5">
     <h2>Welcome, <span><?php echo $name; ?></span></h2>
     <h6><?php echo $position; ?></h6>
-    <div class="jumbotron">
-        <h4 class="display-4 d-flex justify-content-center" id="status"></h4>
-        <h4 class="d-flex justify-content-center font-weight-bold d-none" id="timer">00:00</h4>
-        <!-- <p class="d-flex justify-content-center" id="breakCount">Breaks Taken: 0</p> -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="jumbotron">
+                <h4 class="display-4 d-flex justify-content-center" id="status"></h4>
+                <h4 class="d-flex justify-content-center font-weight-bold" id="timer">00:00</h4>
+                <!-- <p class="d-flex justify-content-center d-none" id="breakCount">Breaks Taken: 0</p> -->
+            </div>
+        </div>
     </div>
+    <hr class="divider">
     <button type="button" class="btn blue-gradient btn-rounded" data-toggle="modal" data-target="#modalCreateTask">
         CREATE TASK
     </button>
@@ -21,6 +32,7 @@
     ?>
     <button class="btn btn-rounded text-white" style="background-color: #43cea2;" id="breakButton">Take a Break</button>
     <button class="btn btn-rounded text-white" style="background-color: #FF5733;" id="endBreakButton">End Break</button>
+    <button class="btn btn-rounded text-white btn-warning d-none" id="lunchBreakButton">Lunch Break</button>
 
     <div class="row my-4">
         <div class="col-md-12">
@@ -343,7 +355,7 @@
                                             task.task_date AS task_date,
                                             task.due_date AS due_date 
                                             FROM task LEFT JOIN users ON task.user_id=users.id 
-                                            WHERE users.id=? AND task.task_status=?",array($login_id,"6"));
+                                            WHERE users.id=? AND task.task_status=?",array($login_id,"5"));
                                         for ($i=0; $i < COUNT($disp_tasks_onhold); $i++) { 
                                             echo "<tr>
                                                     <td>".$disp_tasks_onhold[$i]['task_id']."</td>

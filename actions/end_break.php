@@ -1,8 +1,11 @@
 <?php
 include('../includes/connect.php');
-include('../includes/session.php');
 
 header('Content-Type: application/json');
+
+session_start();
+$login_id = $_SESSION['login_id'];
+
 $response = array('status' => 'error', 'message' => 'Invalid request.');
 
 $break_end = date('Y-m-d H:i:s');

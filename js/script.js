@@ -1,51 +1,88 @@
 $(document).ready(function() {
     
-    // let timerInterval;
-    // let breakTimeLeft = localStorage.getItem('remainingBreakTime') ? parseInt(localStorage.getItem('remainingBreakTime')) : 3600;
     var breakTimeLeft = 3600; // Default 1 hour in seconds
     var timerInterval;
+    var shiftEndHour = 8;
 
-    function updateTimerDisplay(timeLeft) {
-        var minutes = Math.floor(timeLeft / 60);
-        var seconds = timeLeft % 60;
+    function resetTimeForNewShift() { 
+
+        var now = new Date();
+        var currentHour = now.getHours();
+
+        if (currentHour >= shiftEndHour || currentHour < 2) {
+            localStorage.removeItem('breaktimeLeft');
+            breakTimeLeft = 3600;
+        }
+    }
+
+    resetTimeForNewShift();
+
+    function updateTimerDisplay(time) {
+
+        if (isNaN(time)) {
+            time = 3600;
+        }
+
+        var minutes = Math.floor(time / 60);
+        var seconds = time % 60;
     
         $('#timer').text(minutes + ":" + (seconds < 10 ? '0' : '') + seconds);
+    
     }
     
-    
 
-    if (localStorage.getItem('remainingBreakTime')) {
-        breakTimeLeft = parseInt(localStorage.getItem('remainingBreakTime'), 10);
-        updateTimerDisplay(breakTimeLeft);
-        startBreakTimer();
-    }
-
-    function startBreakTimer(initialTime) {
-        if (initialTime) {
-            breakTimeLeft = initialTime;
-        }
-    
+    function startBreakTimer(duration) {
+        
+        var timer = duration;
         timerInterval = setInterval(function() {
-            if (breakTimeLeft <= 0) {
+            var minutes = Math.floor(timer / 60);
+            var seconds = timer % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+    
+            $('#timer').text(minutes + ":" + seconds);
+    
+            if (--timer < 0) {
                 clearInterval(timerInterval);
-                $('#status').text('Status: No Break Time Left');
-                $('#breakButton').prop('disabled', true);
+                Swal.fire('Break Over', 'Your break time has ended.', 'info');
+                $('#breakButton').show();
                 $('#endBreakButton').hide();
-                return;
             }
-            
-            breakTimeLeft--;
-            updateTimerDisplay(breakTimeLeft);
-            localStorage.setItem('breakTimeLeft', breakTimeLeft);
+            breakTimeLeft = timer;
         }, 1000);
     }
+
+    
+
+
+
+    function updateLunchBreak() {
+        $.ajax({
+            url: './actions/update_lunch_break.php',
+            method: 'POST',
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#status').text('Status: On Lunch Break');
+                    let lunchTimeLeft = localStorage.getItem('lunchBreakTimeLeft') || 3600;
+                    startBreakTimer(lunchTimeLeft);
+                } else {
+                    // console.log(response.message);
+                }
+            },
+            error: function(error) {
+                console.error('Failed to update lunch break.',  error);
+
+            }
+        });
+    }
+    updateLunchBreak();
+    
     
 
     $("#breakButton").click(function() {
         $.ajax({
             url: './actions/update_break_status.php',
             method: 'POST',
-            data: { action: 'start_break' },
+            data: { action: 'start_break', break_time: breakTimeLeft },
             success: function(response) {
                 if (response.status === 'success') {
                     Swal.fire('Success', response.message, 'success');
@@ -53,51 +90,56 @@ $(document).ready(function() {
                     $('#breakButton').hide();
                     $('#endBreakButton').show();
 
-                    let savedBreakTime = localStorage.getItem('breakTimeLeft');
-                    if (savedBreakTime !== null && savedBreakTime > 0) {
-                        breakTimeLeft = parseInt(savedBreakTime, 10);
-                    } else {
-                        breakTimeLeft = 3600;
-                    }
-
+                    breakTimeLeft = response.break_time || 3600;
                     startBreakTimer(breakTimeLeft);
-                    getRemainingBreakTime();
                 } else {
                     Swal.fire('Error', response.message, 'error');
                 }
             },
-            error: function() {
-                Swal.fire('Error', 'An error occurred. Please try again.', 'error');
+            error: function(xhr, status, error) {
+                console.error('XHR:', xhr);
+                console.error('Status:', status);
+                console.error('Error:', error);
+                Swal.fire('Error', 'An error occurred while starting the break: ' + error, 'error');
             }
         });
     });
     
     $("#endBreakButton").click(function() {
 
-        clearInterval(timerInterval);
-        localStorage.setItem('breakTimeLeft', breakTimeLeft);
-
         $.ajax({
             url: './actions/update_break_status.php',
             method: 'POST',
-            data: { action: 'end_break' },
+            data: { action: 'end_break', break_time: breakTimeLeft },
             success: function(response) {
                 if (response.status === 'success') {
-                    Swal.fire('Break Ended', 'Your short break has ended successfully. Please back to work', 'success');
+                    
+                    Swal.fire('Break Ended', response.message, 'success');
+                   
                     $('#status').text('Status: Back to Work');
                     $('#breakButton').show();
                     $('#endBreakButton').hide();
-                    updateTimerDisplay(breakTimeLeft)
-                    //localStorage.setItem('remainingBreakTime', breakTimeLeft);
+                   
+                    clearInterval(timerInterval);
+                
                 } else {
                     Swal.fire('Error', response.message, 'error');
                 }
             },
             error: function() {
-                Swal.fire('Error', 'An error occurred while ending the break.', 'error');
+                Swal.fire('Error', 'An error occurred while starting the break: ' + error, 'error');
             }
         });
     });
+
+    // function getBreakTimeLeft() {
+    //     let savedTime = localStorage.getItem('breakTimeLeft');
+    //     if (savedTime !== null && !isNaN(savedTime)) {
+    //         return parseInt(savedTime, 10);
+    //     } else {
+    //         return 3600;
+    //     }
+    // }
 
     function getRemainingBreakTime() {
         $.ajax({
@@ -113,7 +155,7 @@ $(document).ready(function() {
                 }
             },
             error: function() {
-                console.error('Failed to retrieve break time.');
+                console.error('Failed to retrieve break time.', error);
             }
         });
     }
@@ -124,6 +166,7 @@ $(document).ready(function() {
         $.ajax({
             url: './actions/display_breaks.php',
             method: 'GET',
+            cache:false,
             success: function(response) {
                 if (response.status === 'success') {
                     var employeeList = '';
@@ -185,7 +228,7 @@ $(document).ready(function() {
                 $('#breakButton').hide();
                 $('#status').text('Status: On Break');
                 $('#endBreakButton').show();
-                if (data.time_remaining) {
+                if (response.time_remaining) {
                     startBreakTimer(response.time_remaining);
                 }
             } else {
@@ -288,6 +331,87 @@ $(document).ready(function() {
             });
         }
     });
+    
+    $("#save_profile").click(function(e){
+
+        e.preventDefault();
+
+        $.ajax({
+            url: "./actions/save_profile.php",
+            type: 'POST',
+            data: { 
+                edit_id:$("#edit_id").val(),
+                edit_lastname:$("#edit_lastname").val(),
+                edit_firstname:$("#edit_firstname").val(),
+                edit_position:$("#edit_position").val(),
+                edit_username:$("#edit_username").val(),
+                edit_password:$("#edit_password").val(),
+            },
+            dataType: 'JSON',
+            success: function(response) { 
+                console.log(response);
+                Swal.fire({
+                    title: response.status === 'success' ? 'Success!' : 'Error!',
+                    text: response.message,
+                    icon: response.status,
+                    confirmButtonText: 'OK'
+                });
+            },
+            error: function(error) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+    });
+
+    $("#save_password").click(function(e){
+        e.preventDefault();
+
+        var currentPassword = $('#current_password').val();
+        var newPassword = $('#new_password').val();
+        var confirmPassword = $('#confirm_password').val();
+
+        if (newPassword !== confirmPassword) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Passwords do not match',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+
+        $.ajax({
+            url: "./actions/save_password.php",
+            type: 'POST',
+            data: { 
+                current_password:currentPassword,
+                new_password:newPassword
+            },
+            dataType: 'JSON',
+            success: function(response) { 
+                Swal.fire({
+                    title: response.status === 'success' ? 'Success!' : 'Error!',
+                    text: response.message,
+                    icon: response.status === 'success' ? 'success' : 'error',
+                    confirmButtonText: 'OK'
+                });
+                $("#frmChangePassword")[0].reset();
+            },
+            error: function(error) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred: ' + error,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    });
+    
 
     $("#add_task").click(function(e){
         e.preventDefault();
@@ -491,6 +615,31 @@ $(document).ready(function() {
              }
         });
     }
+
+    $.ajax({
+        url: "./actions/check_task.php",
+        method: 'GET',
+        success: function(response) {
+            var taskNotificationMessage = '';
+            
+            if (response.status === 'success') {
+                response.data.forEach(task => {
+                    taskNotificationMessage += `
+                        <h5 class="text-center">${task.title}</h5>
+                        <hr class="divider">`;
+                });
+            } else {
+                taskNotificationMessage += `
+                    <h5 class="text-center">No tasks today</h5>`;
+            }
+            
+            $("#taskNotification").html(taskNotificationMessage);
+        },
+        error: function(error) { 
+            console.log(error);
+        }
+    });
+    
     
     $("#nightMode").click(function(){
 		$("body").toggleClass('bg-dark text-white');
@@ -538,3 +687,21 @@ $(document).ready(function() {
     });
 
 });
+
+toastr.options = {
+	"closeButton": false,
+	"debug": false,
+	"newestOnTop": false,
+	"progressBar": true,
+	"positionClass": "md-toast-top-right",
+	"preventDuplicates": false,
+	"onclick": null,
+	"showDuration": 300,
+	"hideDuration": 1000,
+	"timeOut": 5000,
+	"extendedTimeOut": 1000,
+	"showEasing": "swing",
+	"hideEasing": "linear",
+	"showMethod": "fadeIn",
+	"hideMethod": "fadeOut"
+}

@@ -1,4 +1,5 @@
 <?php include('includes/header.php'); ?>
+<?php include('includes/session.php'); ?>
 <?php include('library/functions.php') ?>
 <?php $page_title = "Betson Tracker"; ?>
 <?php
@@ -8,7 +9,7 @@
 <section style="background-color: #eee;">
     <div class="container py-5">
         <div class="row">
-            <div class="col-lg-4">
+            <div class="col-lg-5">
                 <div class="card mb-4">
                     <div class="card-body text-center">
                         <img src="./img/avatar.avif" alt="avatar" class="rounded-circle img-fluid" style="width: 150px;">
@@ -16,12 +17,13 @@
                         <p class="text-muted mb-1"><?php echo $user_profile[0]['position'] ?></p>
                         <p class="text-muted mb-4">Bay Area, San Francisco, CA</p>
                         <div class="d-flex justify-content-center mb-2">
-                            <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary" onclick="window.location.href='edit.profile.php?edit=<?php echo $user_profile[0]['id']; ?>'">Edit Profile</button>
+                            <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary" onclick="window.location.href='edit_profile.php?edit=<?php echo $user_profile[0]['id']; ?>'">Edit Profile</button>
+                            <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-secondary" onclick="window.location.href='change_password.php?edit=<?php echo $user_profile[0]['id']; ?>'">Change Password</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-8">
+            <div class="col-lg-7">
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="row">
