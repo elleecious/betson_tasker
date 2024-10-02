@@ -5,15 +5,10 @@ error_reporting(E_ALL);
 
 include('../includes/connect.php');
 include('../includes/session.php');
+include('../library/functions.php');
 
 header('Content-Type: application/json');
 $response = array('status' => 'error', 'message' => 'Invalid request.');
-
-$ip_address = getenv('HTTP_CLIENT_IP') ?: getenv('HTTP_X_FORWARDED_FOR')?:
-getenv('HTTP_X_FORWARDED')?: getenv('HTTP_FORWARDED_FOR')?:
-getenv('HTTP_FORWARDED')?: getenv('REMOTE_ADDR');
-
-$ip_address_2 = ($_SERVER['REMOTE_ADDR'] == '::1') ? '127.0.0.1' : $ip_address;
 
 
 $task_title = $_POST['task_title'];
@@ -32,7 +27,7 @@ $logs_result = manage(
     VALUES (?,?,?,?,?,?)",
     array(
         gethostbyaddr($_SERVER['REMOTE_ADDR']),
-        $ip_address_2,              
+        getPublicIP(),          
         "HOME",
         "CREATE",         
             "<details>

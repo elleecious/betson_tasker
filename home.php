@@ -125,9 +125,7 @@
                                                             <i class='fas fa-edit'></i>
                                                         </span>
                                                         <span class='mr-1 delete_task'
-                                                                delete_task_id='".$disp_task_new[$i]['task_id']."'
-                                                                data-toggle='modal'
-                                                                data-target='#delete_task_modal'>
+                                                            data-task-id='".$disp_task_new[$i]['task_id']."'>
                                                             <i class='fa fa-trash'></i>
                                                         </span>
                                                     </td>
@@ -400,9 +398,53 @@ $(document).ready(function(){
 
     $('.datepicker').pickadate();
 
-    $(".delete_task").click(function(){
-        $("#delete_task_id").val($(this).attr("delete_task_id"));
-        $("#delete_task_modal").modal("show");
+    $(".delete_task").click(function(e){
+        e.preventDefault();
+
+    
+        var delete_task_id = $(this).data('task-id');
+    
+        Swal.fire({
+            title: 'Delete Task?',
+            text: 'Are you sure you want to delete this task?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log(delete_task_id);
+    
+                $.ajax({
+                    url: "./actions/delete_task.php",
+                    type: "POST",
+                    dataType: 'JSON',
+                    data: { 
+                        delete_task_id: delete_task_id,
+                    },
+                    success: function(response) { 
+                        console.log(response);
+                        Swal.fire({
+                            title: response.status === 'success' ? 'Deleted!' : 'Error!',
+                            text: response.message,
+                            icon: response.status,
+                        });
+                        setTimeout(function(){
+                            location.reload();
+                        }, 1000);
+                    },
+                    error: function(error) { 
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred: ' + error,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            }
+        });
     });
 
     $(".edit_task").click(function(){

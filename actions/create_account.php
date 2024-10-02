@@ -1,10 +1,7 @@
 <?php
 
-ini_set('log_errors', 1);
-ini_set('error_log', 'C:/xampp/php/logs/php_error_log.txt');
-error_reporting(E_ALL);
-
 include('../includes/connect.php');
+include('../library/functions.php');
 
 header('Content-Type: application/json');
 $response = array('status' => 'error', 'message' => 'Invalid request.');
@@ -16,15 +13,6 @@ $username = $_POST['username'];
 $level = $_POST['level'];
 $hashed_password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 $created_at = date('Y-m-d H:i:s a');
-
-$ip_address = getenv('HTTP_CLIENT_IP') ?:
-getenv('HTTP_X_FORWARDED_FOR')?:
-getenv('HTTP_X_FORWARDED')?:
-getenv('HTTP_FORWARDED_FOR')?:
-getenv('HTTP_FORWARDED')?:
-getenv('REMOTE_ADDR');
-
-$ip_address_2 = ($_SERVER['REMOTE_ADDR'] == '::1') ? '127.0.0.1' : $ip_address;
 
 $prev_dup_username_sql = retrieve("SELECT COUNT(*) AS username_exist FROM users WHERE username=?",array($username));
 
@@ -41,7 +29,7 @@ if ($prev_dup_username_sql && $prev_dup_username_sql[0]['username_exist'] > 0) {
         VALUES (?,?,?,?,?,?)",
         array(
             gethostbyaddr($_SERVER['REMOTE_ADDR']),
-            $ip_address_2,              
+            getPublicIP(),            
             "Registration",
             "REGISTER",         
             "

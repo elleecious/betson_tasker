@@ -41,14 +41,10 @@
 
     }
 
-    function getPublicIP(){
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, "http://httpbin.org/ip");
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $ip = json_decode($response, true);
-        return $ip['origin'];
+    function getPublicIP() {
+        $url = 'https://ipinfo.io/json';
+        $response = @file_get_contents($url);
+        $data = json_decode($response, true);
+        return $data['ip'];
     }
 ?>

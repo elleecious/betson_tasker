@@ -101,30 +101,3 @@
       </div>
     </div>
   </div>
-
-  <div class="modal fade" id="delete_task_modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content">
-      <div class="modal-header primary-color text-white">
-        <h5 class="modal-title w-100 text-white">Delete Task</h5>
-        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form method="POST">
-            <div class="row mt-3">
-              <input type="text" name="delete_task_id" id="delete_task_id" hidden>
-              <div class="col-md-12">
-                <h6>Are you sure you want to delete this task?</h6>
-              </div>
-            </div>
-            <div class="d-flex flex-row">
-                <button type="submit" class="btn btn-success btn-rounded btn-sm" name="delete_task" id="delete_task">YES</button>
-                <button type="button" class="btn btn-danger btn-rounded btn-sm" data-dismiss="modal" title="Close">NO</button>
-            </div>
-          </form>
-      </div>
-    </div>
-  </div>
-</div>

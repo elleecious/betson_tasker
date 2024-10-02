@@ -15,13 +15,13 @@ $response = array('status' => 'error', 'message' => 'Invalid request to break');
 $action = isset($_POST['action']) ? $_POST['action'] : '';
 $start_time = date('Y-m-d H:i:s');
 $break_end = date('Y-m-d H:i:s');
-$break_time = isset($_POST['break_time']) ? $_POST['break_time'] : 0;  
+$break_time = $_POST['break_time'];
 
 
 if ($action == 'start_break') {
 
     $insert_break = manage("INSERT INTO breaks (user_id, break_type, break_time, break_start) VALUES (?, ?, ?, ?)",
-        array($login_id, 'short', $break_time, $start_time)
+        array($login_id, 'short', 3600, $start_time)
     );
 
     if ($insert_break) {
