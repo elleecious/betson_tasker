@@ -1,8 +1,4 @@
 <?php
-    ini_set('log_errors', 1);
-    ini_set('error_log', 'C:/xampp/php/logs/php_error_log.txt');
-    error_reporting(E_ALL);
-
     include('../includes/connect.php');
     session_start();
     $login_id = $_SESSION['login_id'];
@@ -19,4 +15,4 @@
     }
 
     echo json_encode($response);
-    ?>
+?>

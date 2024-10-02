@@ -1,5 +1,6 @@
 <?php
 include('../includes/connect.php');
+include('../library/functions.php');
 session_start();
 
 if (isset($_SESSION['login_id'])) {
@@ -12,15 +13,12 @@ $get_username = retrieve("SELECT * FROM users WHERE id=?",array($login_id));
 
 $_SESSION = array();
 
-$ip_address = getenv('HTTP_CLIENT_IP') ?: getenv('HTTP_X_FORWARDED_FOR') ?: getenv('HTTP_X_FORWARDED') ?: getenv('HTTP_FORWARDED_FOR') ?: getenv('HTTP_FORWARDED') ?: getenv('REMOTE_ADDR');
-$ip_address_2 = ($_SERVER['REMOTE_ADDR'] == '::1') ? '127.0.0.1' : $ip_address;
-
 if (ini_get("session.use_cookies")) {
     manage("INSERT INTO logs (computer_name, ip_address, page, action, details, date)
         VALUES (?, ?, ?, ?, ?, ?)", 
     array(
         gethostbyaddr($_SERVER['REMOTE_ADDR']),
-        $ip_address_2,
+        getPublicIP(),
         "HOME",
         "LOGOUT",
         "<details>
