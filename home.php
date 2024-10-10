@@ -22,19 +22,19 @@
         </div>
     </div>
     <hr class="divider">
-    <button type="button" class="btn blue-gradient btn-rounded" data-toggle="modal" data-target="#modalCreateTask">
+    <button type="button" class="btn blue-gradient btn-rounded d-none" data-toggle="modal" data-target="#modalCreateTask">
         CREATE TASK
     </button>
-    <?php
-        echo ($level=="1") ? '<button type="button" class="btn btn-info btn-rounded" data-toggle="modal" data-target="#modalAssignTask">
-        ASSIGN A TASK
-    </button>' : '';
-    ?>
     <button class="btn btn-rounded text-white" style="background-color: #43cea2;" id="breakButton">Take a Break</button>
     <button class="btn btn-rounded text-white" style="background-color: #FF5733;" id="endBreakButton">End Break</button>
     <button class="btn btn-rounded text-white btn-warning d-none" id="lunchBreakButton">Lunch Break</button>
+    <?php
+        if ($level=="1" || $position == "IT Officer") {
+            echo "<a class='btn btn-rounded text-white btn-secondary' href='view_employee_breaks.php'>View Employee Breaks</a>";
+        }
+    ?>
 
-    <div class="row my-4">
+    <div class="row my-4 d-none ">
         <div class="col-md-12">
             <section class="mx-2 pb-3">
                 <ul class="nav nav-tabs md-tabs" id="myTabMD" role="tablist">
