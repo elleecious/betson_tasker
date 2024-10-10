@@ -6,7 +6,7 @@
     $user_profile = retrieve("SELECT * FROM users WHERE id=?",array($_GET['id']));
 ?>
 <?php include('includes/navbar.php'); ?>
-<section style="background-color: #eee;">
+<section>
     <div class="container py-5">
         <div class="row">
             <div class="col-lg-5">

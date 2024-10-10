@@ -1,36 +1,97 @@
 $(document).ready(function() {
     
-    var breakTimeLeft = 3600; // Default 1 hour in seconds
+    var breakTimeLeft = 3600;
     var timerInterval;
 
     function startBreakTimer(duration) {
-        var timer = duration;
+        breakTimeLeft = duration;
         timerInterval = setInterval(function() {
-            var minutes = Math.floor(timer / 60);
-            var seconds = timer % 60;
+            var minutes = Math.floor(breakTimeLeft / 60);
+            var seconds = breakTimeLeft % 60;
             seconds = seconds < 10 ? '0' + seconds : seconds;
     
-            $('#timer').text(minutes + ":" + seconds);
+            if (breakTimeLeft === 60) {
+                Swal.fire({
+                    title: "Break Time",
+                    text: "You should end your short break or else you will don't ",
+                    icon: "warning",
+                    confirmButtonText: "Okay",
+                });
+            }
     
-            if (--timer < 0) {
+            if (--breakTimeLeft < 0) {
                 clearInterval(timerInterval);
                 Swal.fire('Break Over', 'Your break time has ended.', 'info');
                 $('#breakButton').show();
                 $('#endBreakButton').hide();
+    
+                endBreakAutomatically();
+                return;
             }
+            $('#timer').text(minutes + ":" + seconds);
         }, 1000);
     }
+    
+    function endBreakAutomatically() {
+        $.ajax({
+            url: './actions/end_break.php',
+            type: 'POST',
+            dataType: 'JSON',
+            data: { action: 'automatic_end_break', break_time: breakTimeLeft },
+            success: function(response) {
+                if (response.status === 'success') {
+                    Swal.fire('Break Ended Automatically', response.message, 'info');
+                    $("#status").text('Status: Back to Work');
+                    $('#breakButton').show();
+                    $('#endBreakButton').hide();
+                    clearInterval(timerInterval);
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                    console.log('Error ending break automatically: ', response.message);
+                }
+            },
+            error: function(error) {
+                console.log('Error ending break automatically: ', error);
+            }
+        });
+    }
+
+    function resetBreaks(){
+
+        const currentTime = new Date();
+        const hours = currentTime.getHours();
+        const minutes = currentTime.getMinutes();
+
+        if (hours === 21 && minutes === 0) {
+            $.ajax({
+                url: './actions/reset_breaks.php',
+                type: 'GET',
+                dataType: 'JSON',
+                success: function (response) {
+                    if (response.status === 'success') {
+                        console.log("Message: "+response.message);
+                    } else if (response.status === 'error') {
+                        console.log("Message: "+response.message);
+                    }
+                },
+                error: function (error) { 
+                    console.log('An error occured: ', error);
+                }
+            });
+        }
+    }
+    setInterval(resetBreaks, 60000); // every 1 minute
+
 
 
     $.ajax({
         url: './actions/check_break_status.php',
-        method: 'POST',
-        dataType: 'JSON',
+        type: 'GET',
         success: function(response) {
-            if (response.status === 'on_break') {
-                let breakTimeLeft = response.time_remaining;
+            if (response.status === 'on_break' && response.time_remaining <= 0) {
+                breakTimeLeft = response.time_remaining;
                 console.log("Break time left: ", breakTimeLeft);
-                
+
                 if (breakTimeLeft > 0 && !isNaN(breakTimeLeft)) {
                     startBreakTimer(breakTimeLeft);  
                     $('#status').text('Status: On Break');
@@ -48,17 +109,17 @@ $(document).ready(function() {
                 console.log('Unknown status:', response.status);
             }
         },
-        error: function(xhr, status, error) {
+        error: function(error) {
             console.error('Failed to retrieve break status:', error);
         }
     });
-    
-    
 
     $("#breakButton").click(function() {
+
+
         $.ajax({
             url: './actions/start_break.php',
-            method: 'POST',
+            type: 'POST',
             data: { action: 'start_break' },
             success: function(response) {
                 if (response.status === 'success') {
@@ -68,17 +129,15 @@ $(document).ready(function() {
                     $('#endBreakButton').show();
     
                     breakTimeLeft = response.break_time ? response.break_time : 3600;
-    
                     startBreakTimer(breakTimeLeft);
+
                     console.log("Start Break Time Left on Button: ", breakTimeLeft);
                 } else {
                     Swal.fire('Error', response.message, 'error');
                 }
             },
-            error: function(xhr, status, error) {
-                console.error('XHR:', xhr);
-                console.error('Status:', status);
-                console.error('Error:', error);
+            error: function(error) {
+                console.error('Failed to start break:', error);
                 Swal.fire('Error', 'An error occurred while starting the break: ' + error, 'error');
             }
         });
@@ -87,8 +146,8 @@ $(document).ready(function() {
     $("#endBreakButton").click(function() {
         $.ajax({
             url: './actions/end_break.php',
-            method: 'POST',
-            data: { action: 'end_break', break_time: breakTimeLeft }, // Send the remaining time
+            type: 'POST',
+            data: { action: 'end_break', break_time: breakTimeLeft },
             success: function(response) {
                 if (response.status === 'success') {
                     Swal.fire('Break Ended', 'Your short break has ended successfully. Please return to work.', 'success');
@@ -111,7 +170,7 @@ $(document).ready(function() {
     function updateBreaks() {
         $.ajax({
             url: './actions/display_breaks.php',
-            method: 'GET',
+            type: 'GET',
             cache:false,
             success: function(response) {
                 if (response.status === 'success') {
@@ -151,11 +210,8 @@ $(document).ready(function() {
         });
     }
     
-    setInterval(updateBreaks, 1000);
+    setInterval(updateBreaks, 4000);
  
-    
-    
-
 
     //Login
     $("#btnLogin").click(function(e){
@@ -465,7 +521,7 @@ $(document).ready(function() {
     function updateTaskStatus(taskId, currentStatus, direction) {
         $.ajax({
             url: "./actions/update_task_status.php",
-            method: 'POST',
+            type: 'POST',
             data: { 
                 task_id: taskId, 
                 current_status: currentStatus, 
@@ -506,7 +562,7 @@ $(document).ready(function() {
 
     $.ajax({
         url: "./actions/check_task.php",
-        method: 'GET',
+        type: 'GET',
         success: function(response) {
             var taskNotificationMessage = '';
             
@@ -526,13 +582,6 @@ $(document).ready(function() {
     });
     
     
-    $("#nightMode").click(function(){
-		$("body").toggleClass('bg-dark text-white');
-		$(".jumbotron").toggleClass('bg-dark text-white');
-		$(".container").toggleClass('bg-dark text-light');
-        $(".card").toggleClass('bg-dark text-light');
-        $(".table").toggleClass('bg-dark text-light');
-	});
 
     $("#btnLogout").click(function(e){
         e.preventDefault();
@@ -570,5 +619,30 @@ $(document).ready(function() {
             }
         });
     });
+
+
+    if (localStorage.getItem('nightMode') === 'enabled') {
+        $("body").addClass('bg-dark text-white');
+        $(".jumbotron").addClass('bg-dark text-white');
+        $(".container").addClass('bg-dark text-white');
+        $(".card").addClass('bg-dark text-white');
+        $("section").addClass('bg-dark');
+    }
+
+    $("body").fadeIn(0);
+
+    $("#nightMode").click(function(){
+		$("body").toggleClass('bg-dark text-white');
+		$(".jumbotron").toggleClass('bg-dark text-white');
+		$(".container").toggleClass('bg-dark text-white');
+        $(".card").toggleClass('bg-dark text-white');
+        $("section").toggleClass('bg-dark');
+
+        if ($("body").hasClass("bg-dark text-white")) {
+            localStorage.setItem("nightMode","enabled");
+        } else {
+            localStorage.setItem("nightMode",'disabled');
+        }
+	});
 
 });

@@ -38,7 +38,15 @@
         }
 
         return "<td class={$color} font-weight-bold'>{$status_name}</td>";
+    }
 
+    function secondsToHoursMinutes($seconds) {
+        $hours = floor($seconds / 3600);
+        $minutes = floor(($seconds % 3600) / 60);
+        return [
+            'hours'   => $hours,
+            'minutes' => $minutes,
+        ];
     }
 
     function getPublicIP() {

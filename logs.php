@@ -11,7 +11,7 @@
                     <div class="card-body">
 						<div class="row">
                             <div class="col-md-12">
-                                <table class="table table-striped table-bordered table-sm text-center" width="100%" cellspacing="0" cellpadding="0" id="tblLogs">
+                                <table class="table table-bordered table-sm text-center" width="100%" cellspacing="0" cellpadding="0" id="tblLogs">
                                     <thead>
                                         <tr>
                                             <?php
