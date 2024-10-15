@@ -2,6 +2,7 @@ $(document).ready(function() {
     
     var breakTimeLeft = 3600;
     var timerInterval;
+    
 
     function startBreakTimer(duration) {
         breakTimeLeft = duration;
@@ -55,33 +56,22 @@ $(document).ready(function() {
             }
         });
     }
-
-    function resetBreaks(){
-
-        const currentTime = new Date();
-        const hours = currentTime.getHours();
-        const minutes = currentTime.getMinutes();
-
-        if (hours === 21 && minutes === 0) {
-            $.ajax({
-                url: './actions/reset_breaks.php',
-                type: 'GET',
-                dataType: 'JSON',
-                success: function (response) {
-                    if (response.status === 'success') {
-                        console.log("Message: "+response.message);
-                    } else if (response.status === 'error') {
-                        console.log("Message: "+response.message);
-                    }
-                },
-                error: function (error) { 
-                    console.log('An error occured: ', error);
-                }
-            });
+    
+    $.ajax({
+        url: './actions/reset_breaks.php',
+        type: 'GET',
+        success: function(response) { 
+            console.log(response);
+            if (response.status === 'success') { 
+                console.log(response.message);
+            } else {
+                console.log(response.message);
+            }
+        },
+        error: function(error){
+            console.log('Error resetting breaks: ', error);
         }
-    }
-    setInterval(resetBreaks, 60000); // every 1 minute
-
+    })
 
 
     $.ajax({
