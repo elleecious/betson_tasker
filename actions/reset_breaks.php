@@ -8,7 +8,7 @@ ini_set('log_errors', 1);
     session_start();
     header('Content-Type: application/json');
     
-    $response = array('status' => 'error', 'message' => 'Failed to reset break time.');
+    $response = array('status' => 'error', 'message' => 'Invalid request reset break time.');
     $login_id = $_SESSION['login_id'];
 
     $currentDateTime = new DateTime();
@@ -30,12 +30,10 @@ ini_set('log_errors', 1);
     if (!empty($last_shift_query)) {
         $last_break_date = new DateTime($last_shift_query[0]['last_break_date']);
     } else {
-        error_log("No last break found.");
         $last_break_date = null;
     }
 
     $isNewShift = ($last_break_date < $shiftStart);
-    error_log("Is New Shift: " . ($isNewShift ? 'Yes' : 'No'));
 
     if ($isNewShift) {
         
@@ -50,6 +48,5 @@ ini_set('log_errors', 1);
     }
 
     echo json_encode($response);
-
 
 ?>

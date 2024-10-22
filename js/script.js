@@ -10,11 +10,12 @@ $(document).ready(function() {
             var minutes = Math.floor(breakTimeLeft / 60);
             var seconds = breakTimeLeft % 60;
             seconds = seconds < 10 ? '0' + seconds : seconds;
-    
-            if (breakTimeLeft === 60) {
+            
+            //5 minutes
+            if (breakTimeLeft === 300) {
                 Swal.fire({
                     title: "Break Time",
-                    text: "You should end your short break or else you will don't ",
+                    text: "You should end your short break or else you will don't have a time left",
                     icon: "warning",
                     confirmButtonText: "Okay",
                 });
@@ -94,7 +95,6 @@ $(document).ready(function() {
                 $('#breakButton').show();
                 $('#endBreakButton').hide();
                 $('#status').text('Status: Active');
-                console.log('User is active, not on break');
             } else {
                 console.log('Unknown status:', response.status);
             }
