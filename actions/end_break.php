@@ -21,7 +21,7 @@
             if ($update_status) {
                 $response = array('status' => 'success', 'message' => 'Break ended successfully.');
             } else {
-                $response = array('status' => 'error', 'message' => 'Failed to update user status.');
+                $response = array('status' => 'error', 'message' => 'Failed to update user status on end break.');
             }
         } else {
             $response = array('status' => 'error', 'message' => 'Failed to update break record.');

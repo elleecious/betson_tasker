@@ -60,7 +60,7 @@
                     if ($update_status) {
                         $response = array('status' => 'success', 'message' => 'Break started successfully.', 'break_time' => $break_time);
                     } else {
-                        $response = array('status' => 'error', 'message' => 'Failed to update user status.');
+                        $response = array('status' => 'error', 'message' => 'Failed to update user status on start');
                     }
                 } else {
                     $response = array('status' => 'error', 'message' => 'Failed to insert break record.');
